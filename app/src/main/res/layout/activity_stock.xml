@@ -1,0 +1,206 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".ui.stock.StockActivity">
+
+    <TextView
+        android:id="@+id/textViewWeekRangeTitle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:text="52 WEEK RANGE"
+        app:layout_constraintStart_toStartOf="@+id/textViewDayRangeTitle"
+        app:layout_constraintTop_toBottomOf="@+id/textViewDayRangeValue" />
+
+    <TextView
+        android:id="@+id/textViewCloseTitle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="16dp"
+        android:text="CLOSE"
+        app:layout_constraintHorizontal_chainStyle="spread_inside"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/textViewOpenValue" />
+
+    <TextView
+        android:id="@+id/textViewPercRangeTitle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:layout_marginEnd="8dp"
+        android:text="% RANGE"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/textViewVolumeValue" />
+
+    <TextView
+        android:id="@+id/textViewCloseValue"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="4dp"
+        android:text="33,526.19"
+        app:layout_constraintHorizontal_chainStyle="spread_inside"
+        app:layout_constraintStart_toStartOf="@+id/textViewOpenTitle"
+        app:layout_constraintTop_toBottomOf="@+id/textViewCloseTitle" />
+
+    <TextView
+        android:id="@+id/textViewWeekRangeValue"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="4dp"
+        android:text="33,526.19-33,810.87"
+        app:layout_constraintStart_toStartOf="@+id/textViewWeekRangeTitle"
+        app:layout_constraintTop_toBottomOf="@+id/textViewWeekRangeTitle" />
+
+    <TextView
+        android:id="@+id/textViewPercRangeValue"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="4dp"
+        android:text="0.85%"
+        app:layout_constraintEnd_toEndOf="@+id/textViewVolumeTitle"
+        app:layout_constraintTop_toBottomOf="@+id/textViewPercRangeTitle" />
+
+    <TextView
+        android:id="@+id/textViewDayChangePercent"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="+0.52%"
+        app:layout_constraintBottom_toBottomOf="@+id/textViewStockPrice"
+        app:layout_constraintStart_toStartOf="@+id/textViewDayChange" />
+
+    <TextView
+        android:id="@+id/textViewStockPrice"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="8dp"
+        android:text="33100.55"
+        android:textSize="32sp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/textViewDayChange"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:text="+10.09"
+        app:layout_constraintStart_toEndOf="@+id/textViewStockPrice"
+        app:layout_constraintTop_toTopOf="@+id/textViewStockPrice" />
+
+    <TextView
+        android:id="@+id/textViewDate"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="8dp"
+        android:text="Jan 10 2021"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/textViewStockPrice" />
+
+    <TextView
+        android:id="@+id/textViewOpenTitle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="8dp"
+        android:text="OPEN"
+        app:layout_constraintEnd_toStartOf="@+id/textViewDayRangeTitle"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintHorizontal_chainStyle="spread_inside"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/textViewDate" />
+
+    <TextView
+        android:id="@+id/textViewDayRangeTitle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="DAY'S RANGE"
+        app:layout_constraintEnd_toStartOf="@+id/textViewVolumeTitle"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toEndOf="@+id/textViewOpenTitle"
+        app:layout_constraintTop_toTopOf="@+id/textViewOpenTitle" />
+
+    <TextView
+        android:id="@+id/textViewVolumeTitle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="8dp"
+        android:text="VOLUME"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toEndOf="@+id/textViewDayRangeTitle"
+        app:layout_constraintTop_toTopOf="@+id/textViewOpenTitle" />
+
+    <TextView
+        android:id="@+id/textViewOpenValue"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="4dp"
+        android:text="33,526.19"
+        app:layout_constraintHorizontal_chainStyle="spread_inside"
+        app:layout_constraintStart_toStartOf="@+id/textViewOpenTitle"
+        app:layout_constraintTop_toBottomOf="@+id/textViewOpenTitle" />
+
+    <TextView
+        android:id="@+id/textViewDayRangeValue"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="4dp"
+        android:text="33,526.19-33,810.87"
+        app:layout_constraintStart_toStartOf="@+id/textViewDayRangeTitle"
+        app:layout_constraintTop_toBottomOf="@+id/textViewDayRangeTitle" />
+
+    <TextView
+        android:id="@+id/textViewVolumeValue"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="4dp"
+        android:text="316.41M"
+        app:layout_constraintEnd_toEndOf="@+id/textViewVolumeTitle"
+        app:layout_constraintTop_toBottomOf="@+id/textViewVolumeTitle" />
+
+    <View
+        android:id="@+id/divider"
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:layout_marginTop="8dp"
+        android:background="?android:attr/listDivider"
+        app:layout_constraintTop_toBottomOf="@+id/textViewWeekRangeValue"
+        tools:layout_editor_absoluteX="6dp" />
+
+    <com.github.mikephil.charting.charts.LineChart
+        android:id="@+id/chart"
+        android:layout_width="match_parent"
+        android:layout_height="250dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="12dp"
+        android:layout_marginEnd="8dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="1.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/divider" />
+
+    <androidx.cardview.widget.CardView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="8dp"
+        android:layout_marginEnd="8dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/chart" >
+
+        <!--  Fill card with news headlines   -->
+
+    </androidx.cardview.widget.CardView>
+
+
+</androidx.constraintlayout.widget.ConstraintLayout>
+
+
+

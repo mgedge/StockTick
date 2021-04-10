@@ -3,22 +3,22 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/mobile_navigation"
-    app:startDestination="@+id/navigation_home">
+    app:startDestination="@+id/navigation_watchlist">
 
     <fragment
-        android:id="@+id/navigation_home"
-        android:name="edu.csi.niu.z1818828.stocktick.ui.home.HomeFragment"
+        android:id="@+id/navigation_watchlist"
+        android:name="edu.csi.niu.z1818828.stocktick.ui.watchlist.WatchlistFragment"
         android:label="@string/title_home"
-        tools:layout="@layout/fragment_home" />
+        tools:layout="@layout/fragment_watchlist" />
 
     <fragment
-        android:id="@+id/navigation_dashboard"
+        android:id="@+id/navigation_movers"
         android:name="edu.csi.niu.z1818828.stocktick.ui.dashboard.DashboardFragment"
         android:label="@string/title_dashboard"
         tools:layout="@layout/fragment_dashboard" />
 
     <fragment
-        android:id="@+id/navigation_notifications"
+        android:id="@+id/navigation_search"
         android:name="edu.csi.niu.z1818828.stocktick.ui.notifications.NotificationsFragment"
         android:label="@string/title_notifications"
         tools:layout="@layout/fragment_notifications" />
