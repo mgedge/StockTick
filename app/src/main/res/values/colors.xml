@@ -17,4 +17,10 @@
     <color name="colorAccent">#f0ce34</color>
     <color name="colorAccentDark">#cba82a</color>
     <color name="colorAccentLight">#fdefc0</color>
+
+    <color name="colorPositive">#5DDA5D</color>
+    <color name="colorNegative">#E84A4A</color>
+
+    <color name="colorStockChartGradient">#5DD0DA</color>
+
 </resources>

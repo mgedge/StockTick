@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".ui.stock.StockActivity">
+    tools:context=".ui.stock.StockFragment">
 
     <TextView
         android:id="@+id/textViewWeekRangeTitle"
@@ -169,38 +169,34 @@
         android:layout_width="match_parent"
         android:layout_height="250dp"
         android:layout_marginStart="8dp"
-        android:layout_marginTop="16dp"
+        android:layout_marginTop="22dp"
         android:layout_marginEnd="8dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="1.0"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/textViewWeekRangeValue" />
 
-    <com.github.mikephil.charting.charts.BarChart
-        android:id="@+id/chartVol"
+    <androidx.cardview.widget.CardView
         android:layout_width="match_parent"
-        android:layout_height="100dp"
+        android:layout_height="wrap_content"
         android:layout_marginStart="8dp"
+        android:layout_marginTop="8dp"
         android:layout_marginEnd="8dp"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="1.0"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/chart" />
+        app:layout_constraintTop_toBottomOf="@+id/chart" >
 
-    <Button
+        <!--  Fill card with news headlines   -->
+
+    </androidx.cardview.widget.CardView>
+
+    <ImageButton
         android:id="@+id/buttonAddToWatchlist"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginEnd="8dp"
+        android:layout_marginEnd="16dp"
         android:background="@color/colorPrimary"
-        android:icon="@drawable/ic_baseline_add_24"
-        android:padding="4dp"
-        android:paddingStart="8dp"
-        android:paddingEnd="0dp"
-        android:text="Watchlist"
-        android:textSize="10sp"
-        app:icon="@drawable/ic_baseline_add_24"
-        app:iconGravity="end"
+        android:src="@drawable/ic_baseline_add_24"
         app:layout_constraintBottom_toBottomOf="@+id/textViewStockPrice"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="@+id/textViewStockPrice" />

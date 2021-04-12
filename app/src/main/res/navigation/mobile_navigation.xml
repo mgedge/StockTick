@@ -3,23 +3,40 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/mobile_navigation"
-    app:startDestination="@+id/navigation_watchlist">
+    app:startDestination="@id/navigation_watchlist">
 
     <fragment
         android:id="@+id/navigation_watchlist"
         android:name="edu.csi.niu.z1818828.stocktick.ui.watchlist.WatchlistFragment"
-        android:label="@string/title_home"
-        tools:layout="@layout/fragment_watchlist" />
+        android:label="Watchlist"
+        tools:layout="@layout/fragment_watchlist" >
+        <action
+            android:id="@+id/action_navigation_watchlist_to_navigation_stock"
+            app:destination="@id/navigation_stock" />
+    </fragment>
 
     <fragment
         android:id="@+id/navigation_movers"
-        android:name="edu.csi.niu.z1818828.stocktick.ui.dashboard.DashboardFragment"
-        android:label="@string/title_dashboard"
-        tools:layout="@layout/fragment_dashboard" />
+        android:name="edu.csi.niu.z1818828.stocktick.ui.movers.MoversFragment"
+        android:label="Market Movers"
+        tools:layout="@layout/fragment_dashboard" >
+        <action
+            android:id="@+id/action_navigation_movers_to_navigation_stock"
+            app:destination="@id/navigation_stock" />
+    </fragment>
 
     <fragment
         android:id="@+id/navigation_search"
         android:name="edu.csi.niu.z1818828.stocktick.ui.notifications.NotificationsFragment"
-        android:label="@string/title_notifications"
-        tools:layout="@layout/fragment_notifications" />
+        android:label="Search"
+        tools:layout="@layout/fragment_notifications" >
+        <action
+            android:id="@+id/action_navigation_search_to_navigation_stock"
+            app:destination="@id/navigation_stock" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/navigation_stock"
+        android:name="edu.csi.niu.z1818828.stocktick.ui.stock.StockFragment"
+        tools:layout="@layout/fragment_stock" />
 </navigation>
