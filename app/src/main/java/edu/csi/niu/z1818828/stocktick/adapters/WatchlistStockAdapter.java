@@ -7,22 +7,16 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
-import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentActivity;
-import androidx.fragment.app.FragmentManager;
-import androidx.fragment.app.FragmentTransaction;
 import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.List;
 
 import edu.csi.niu.z1818828.stocktick.MainActivity;
 import edu.csi.niu.z1818828.stocktick.R;
-import edu.csi.niu.z1818828.stocktick.Stock;
+import edu.csi.niu.z1818828.stocktick.objects.Stock;
 import edu.csi.niu.z1818828.stocktick.ui.stock.StockActivity;
-import edu.csi.niu.z1818828.stocktick.ui.stock.StockFragment;
 
 public class WatchlistStockAdapter extends RecyclerView.Adapter<WatchlistStockAdapter.ViewHolder> {
     private List<Stock> stocks;
@@ -120,8 +114,8 @@ public class WatchlistStockAdapter extends RecyclerView.Adapter<WatchlistStockAd
         public ViewHolder(@NonNull View itemView, AdapterView.OnItemClickListener listener) {
             super(itemView);
 
-            textViewSymbol = itemView.findViewById(R.id.textViewSymbol);
-            textViewExchange = itemView.findViewById(R.id.textViewExchange);
+            textViewSymbol = itemView.findViewById(R.id.textViewNewsTitle);
+            textViewExchange = itemView.findViewById(R.id.textViewSource);
             textViewStockName = itemView.findViewById(R.id.textViewStockName);
             textViewPercentChange = itemView.findViewById(R.id.textViewPercentChange);
             textViewPrice = itemView.findViewById(R.id.textViewPrice);

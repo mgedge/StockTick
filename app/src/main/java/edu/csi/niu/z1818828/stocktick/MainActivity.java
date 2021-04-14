@@ -1,5 +1,6 @@
 package edu.csi.niu.z1818828.stocktick;
 
+import android.content.SharedPreferences;
 import android.os.Build;
 import android.os.Bundle;
 
@@ -11,6 +12,11 @@ import androidx.navigation.Navigation;
 import androidx.navigation.ui.AppBarConfiguration;
 import androidx.navigation.ui.NavigationUI;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import edu.csi.niu.z1818828.stocktick.objects.Stock;
+
 public class MainActivity extends AppCompatActivity {
 
     @Override
@@ -18,6 +24,7 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        List<Stock> watchlist = new ArrayList<>();
 
 
         if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
@@ -38,5 +45,12 @@ public class MainActivity extends AppCompatActivity {
         NavigationUI.setupActionBarWithNavController(this, navController, appBarConfiguration);
         NavigationUI.setupWithNavController(navView, navController);
     }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+//        saveData();
+    }
+
 
 }

@@ -13,7 +13,7 @@
         android:layout_height="match_parent" >
 
         <TextView
-            android:id="@+id/textViewSymbol"
+            android:id="@+id/textViewNewsTitle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="8dp"
@@ -25,13 +25,13 @@
             app:layout_constraintTop_toTopOf="parent" />
 
         <TextView
-            android:id="@+id/textViewExchange"
+            android:id="@+id/textViewSource"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="8dp"
             tools:text="Lorem"
-            app:layout_constraintStart_toEndOf="@+id/textViewSymbol"
-            app:layout_constraintTop_toTopOf="@+id/textViewSymbol" />
+            app:layout_constraintStart_toEndOf="@+id/textViewNewsTitle"
+            app:layout_constraintTop_toTopOf="@+id/textViewNewsTitle" />
 
         <TextView
             android:id="@+id/textViewStockName"
@@ -44,7 +44,7 @@
             tools:text="Lorem Ipsum"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/textViewSymbol" />
+            app:layout_constraintTop_toBottomOf="@+id/textViewNewsTitle" />
 
         <TextView
             android:id="@+id/textViewPercentChange"
@@ -56,7 +56,7 @@
             android:textAlignment="textEnd"
             android:textSize="18sp"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="@+id/textViewSymbol"
+            app:layout_constraintTop_toTopOf="@+id/textViewNewsTitle"
             tools:text="+###.##%" />
 
         <TextView

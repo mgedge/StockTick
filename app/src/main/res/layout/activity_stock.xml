@@ -1,211 +1,222 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    tools:context=".ui.stock.StockActivity">
-
-    <TextView
-        android:id="@+id/textViewWeekRangeTitle"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
-        android:text="52 WEEK RANGE"
-        app:layout_constraintStart_toStartOf="@+id/textViewDayRangeTitle"
-        app:layout_constraintTop_toBottomOf="@+id/textViewDayRangeValue" />
-
-    <TextView
-        android:id="@+id/textViewCloseTitle"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="8dp"
-        android:layout_marginTop="16dp"
-        android:text="CLOSE"
-        app:layout_constraintHorizontal_chainStyle="spread_inside"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/textViewOpenValue" />
-
-    <TextView
-        android:id="@+id/textViewPercRangeTitle"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
-        android:layout_marginEnd="8dp"
-        android:text="% RANGE"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/textViewVolumeValue" />
-
-    <TextView
-        android:id="@+id/textViewCloseValue"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="4dp"
-        android:text="33,526.19"
-        app:layout_constraintHorizontal_chainStyle="spread_inside"
-        app:layout_constraintStart_toStartOf="@+id/textViewOpenTitle"
-        app:layout_constraintTop_toBottomOf="@+id/textViewCloseTitle" />
-
-    <TextView
-        android:id="@+id/textViewWeekRangeValue"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="4dp"
-        android:text="33,526.19-33,810.87"
-        app:layout_constraintStart_toStartOf="@+id/textViewWeekRangeTitle"
-        app:layout_constraintTop_toBottomOf="@+id/textViewWeekRangeTitle" />
-
-    <TextView
-        android:id="@+id/textViewPercRangeValue"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="4dp"
-        android:text="0.85%"
-        app:layout_constraintEnd_toEndOf="@+id/textViewVolumeTitle"
-        app:layout_constraintTop_toBottomOf="@+id/textViewPercRangeTitle" />
-
-    <TextView
-        android:id="@+id/textViewDayChangePercent"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="+0.52%"
-        app:layout_constraintBottom_toBottomOf="@+id/textViewStockPrice"
-        app:layout_constraintStart_toStartOf="@+id/textViewDayChange" />
-
-    <TextView
-        android:id="@+id/textViewStockPrice"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="8dp"
-        android:layout_marginTop="8dp"
-        android:text="33100.55"
-        android:textSize="32sp"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
-
-    <TextView
-        android:id="@+id/textViewDayChange"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="8dp"
-        android:text="+10.09"
-        app:layout_constraintStart_toEndOf="@+id/textViewStockPrice"
-        app:layout_constraintTop_toTopOf="@+id/textViewStockPrice" />
-
-    <TextView
-        android:id="@+id/textViewDate"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="8dp"
-        android:layout_marginTop="8dp"
-        android:text="Jan 10 2021"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/textViewStockPrice" />
-
-    <TextView
-        android:id="@+id/textViewOpenTitle"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="8dp"
-        android:layout_marginTop="8dp"
-        android:text="OPEN"
-        app:layout_constraintEnd_toStartOf="@+id/textViewDayRangeTitle"
-        app:layout_constraintHorizontal_bias="0.5"
-        app:layout_constraintHorizontal_chainStyle="spread_inside"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/textViewDate" />
-
-    <TextView
-        android:id="@+id/textViewDayRangeTitle"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="DAY'S RANGE"
-        app:layout_constraintEnd_toStartOf="@+id/textViewVolumeTitle"
-        app:layout_constraintHorizontal_bias="0.5"
-        app:layout_constraintStart_toEndOf="@+id/textViewOpenTitle"
-        app:layout_constraintTop_toTopOf="@+id/textViewOpenTitle" />
-
-    <TextView
-        android:id="@+id/textViewVolumeTitle"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginEnd="8dp"
-        android:text="VOLUME"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.5"
-        app:layout_constraintStart_toEndOf="@+id/textViewDayRangeTitle"
-        app:layout_constraintTop_toTopOf="@+id/textViewOpenTitle" />
-
-    <TextView
-        android:id="@+id/textViewOpenValue"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="4dp"
-        android:text="33,526.19"
-        app:layout_constraintHorizontal_chainStyle="spread_inside"
-        app:layout_constraintStart_toStartOf="@+id/textViewOpenTitle"
-        app:layout_constraintTop_toBottomOf="@+id/textViewOpenTitle" />
-
-    <TextView
-        android:id="@+id/textViewDayRangeValue"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="4dp"
-        android:text="33,526.19-33,810.87"
-        app:layout_constraintStart_toStartOf="@+id/textViewDayRangeTitle"
-        app:layout_constraintTop_toBottomOf="@+id/textViewDayRangeTitle" />
-
-    <TextView
-        android:id="@+id/textViewVolumeValue"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="4dp"
-        android:text="316.41M"
-        app:layout_constraintEnd_toEndOf="@+id/textViewVolumeTitle"
-        app:layout_constraintTop_toBottomOf="@+id/textViewVolumeTitle" />
-
-    <com.github.mikephil.charting.charts.LineChart
-        android:id="@+id/chart"
+    <androidx.core.widget.NestedScrollView xmlns:app="http://schemas.android.com/apk/res-auto"
+        xmlns:tools="http://schemas.android.com/tools"
+        xmlns:android="http://schemas.android.com/apk/res/android"
         android:layout_width="match_parent"
-        android:layout_height="250dp"
-        android:layout_marginStart="8dp"
-        android:layout_marginTop="16dp"
-        android:layout_marginEnd="8dp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="1.0"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/textViewWeekRangeValue" />
+        android:layout_height="match_parent"
+        android:descendantFocusability="blocksDescendants">
 
-    <com.github.mikephil.charting.charts.BarChart
-        android:id="@+id/chartVol"
-        android:layout_width="match_parent"
-        android:layout_height="100dp"
-        android:layout_marginStart="8dp"
-        android:layout_marginEnd="8dp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="1.0"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/chart" />
 
-    <Button
-        android:id="@+id/buttonAddToWatchlist"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginEnd="8dp"
-        android:background="@color/colorPrimary"
-        android:icon="@drawable/ic_baseline_add_24"
-        android:padding="4dp"
-        android:paddingStart="8dp"
-        android:paddingEnd="0dp"
-        android:text="Watchlist"
-        android:textSize="10sp"
-        app:icon="@drawable/ic_baseline_add_24"
-        app:iconGravity="end"
-        app:layout_constraintBottom_toBottomOf="@+id/textViewStockPrice"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="@+id/textViewStockPrice" />
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            tools:context=".ui.stock.StockActivity">
 
-</androidx.constraintlayout.widget.ConstraintLayout>
+            <TextView
+                android:id="@+id/textViewCloseTitle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:layout_marginTop="8dp"
+                android:text="CLOSE"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/textViewOpenTitle" />
+
+            <TextView
+                android:id="@+id/textViewPercRangeTitle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="% RANGE"
+                app:layout_constraintStart_toStartOf="@+id/textViewVolumeTitle"
+                app:layout_constraintTop_toTopOf="@+id/textViewCloseTitle" />
+
+            <TextView
+                android:id="@+id/textViewCloseValue"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="--"
+                android:textAlignment="textEnd"
+                android:textStyle="bold"
+                app:layout_constraintEnd_toEndOf="@+id/textViewOpenValue"
+                app:layout_constraintTop_toTopOf="@+id/textViewCloseTitle" />
+
+            <TextView
+                android:id="@+id/textViewPercRangeValue"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="8dp"
+                android:text="--"
+                android:textAlignment="textEnd"
+                android:textStyle="bold"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="@+id/textViewPercRangeTitle" />
+
+            <TextView
+                android:id="@+id/textViewDayChangePercent"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="--"
+                app:layout_constraintBottom_toBottomOf="@+id/textViewStockPrice"
+                app:layout_constraintStart_toStartOf="@+id/textViewDayChange" />
+
+            <TextView
+                android:id="@+id/textViewStockPrice"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:layout_marginTop="8dp"
+                android:text="--"
+                android:textSize="32sp"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <TextView
+                android:id="@+id/textViewDayChange"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:text="--"
+                app:layout_constraintStart_toEndOf="@+id/textViewStockPrice"
+                app:layout_constraintTop_toTopOf="@+id/textViewStockPrice" />
+
+            <TextView
+                android:id="@+id/textViewDate"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:layout_marginTop="8dp"
+                android:text="01/01/2000"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/textViewStockPrice" />
+
+            <TextView
+                android:id="@+id/textViewVolumeTitle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:text="VOLUME"
+                app:layout_constraintStart_toEndOf="@id/divider2"
+                app:layout_constraintTop_toTopOf="@+id/textViewOpenTitle" />
+
+            <TextView
+                android:id="@+id/textViewOpenTitle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:layout_marginTop="16dp"
+                android:text="OPEN"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/textViewDate" />
+
+            <TextView
+                android:id="@+id/textViewOpenValue"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="8dp"
+                android:text="--"
+                android:textAlignment="textEnd"
+                android:textStyle="bold"
+                app:layout_constraintEnd_toStartOf="@+id/divider2"
+                app:layout_constraintTop_toTopOf="@+id/textViewOpenTitle" />
+
+            <TextView
+                android:id="@+id/textViewVolumeValue"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="8dp"
+                android:text="--"
+                android:textAlignment="textEnd"
+                android:textStyle="bold"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="@+id/textViewVolumeTitle" />
+
+            <com.github.mikephil.charting.charts.LineChart
+                android:id="@+id/chart"
+                android:layout_width="match_parent"
+                android:layout_height="250dp"
+                android:layout_marginStart="8dp"
+                android:layout_marginTop="8dp"
+                android:layout_marginEnd="8dp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_bias="1.0"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/textViewCloseValue" />
+
+            <com.github.mikephil.charting.charts.BarChart
+                android:id="@+id/chartVol"
+                android:layout_width="match_parent"
+                android:layout_height="100dp"
+                android:layout_marginStart="8dp"
+                android:layout_marginEnd="8dp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_bias="1.0"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/chart" />
+
+            <Button
+                android:id="@+id/buttonAddToWatchlist"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="8dp"
+                android:background="@color/colorPrimary"
+                android:icon="@drawable/ic_baseline_add_24"
+                android:padding="4dp"
+                android:paddingStart="8dp"
+                android:paddingEnd="0dp"
+                android:text="Watchlist"
+                android:textSize="10sp"
+                app:icon="@drawable/ic_baseline_add_24"
+                app:iconGravity="end"
+                app:layout_constraintBottom_toBottomOf="@+id/textViewStockPrice"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="@+id/textViewStockPrice" />
+
+            <View
+                android:id="@+id/divider"
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:layout_marginTop="8dp"
+                android:background="?android:attr/listDivider"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/chartVol" />
+
+            <TextView
+                android:id="@+id/textViewHeadlines"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="16dp"
+                android:layout_marginTop="8dp"
+                android:text="News"
+                android:textSize="24sp"
+                android:textStyle="bold"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/divider" />
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/recyclerViewNewsFeed"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:nestedScrollingEnabled="false"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/textViewHeadlines" />
+
+            <View
+                android:id="@+id/divider2"
+                android:layout_width="1dp"
+                android:layout_height="0dp"
+                android:background="?android:attr/listDivider"
+                android:visibility="invisible"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+    </androidx.core.widget.NestedScrollView>
 
 
 
