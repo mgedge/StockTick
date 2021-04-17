@@ -6,6 +6,9 @@
         android:layout_height="match_parent"
         android:descendantFocusability="blocksDescendants">
 
+        <!--        <androidx.cardview.widget.CardView-->
+        <!--            android:layout_width="1dp"-->
+        <!--            android:layout_height="1dp" />-->
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
@@ -13,35 +16,36 @@
             tools:context=".ui.stock.StockActivity">
 
             <TextView
-                android:id="@+id/textViewCloseTitle"
+                android:id="@+id/textViewLowTitle"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="8dp"
                 android:layout_marginTop="8dp"
-                android:text="CLOSE"
+                android:text="LOW"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/textViewOpenTitle" />
+                app:layout_constraintTop_toBottomOf="@+id/textViewHighTitle" />
 
             <TextView
-                android:id="@+id/textViewPercRangeTitle"
+                android:id="@+id/textViewOpenTitle"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="% RANGE"
+                android:text="OPEN"
                 app:layout_constraintStart_toStartOf="@+id/textViewVolumeTitle"
-                app:layout_constraintTop_toTopOf="@+id/textViewCloseTitle" />
+                app:layout_constraintTop_toTopOf="@+id/textViewLowTitle" />
 
             <TextView
-                android:id="@+id/textViewCloseValue"
+                android:id="@+id/textViewLowValue"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_marginEnd="8dp"
                 android:text="--"
                 android:textAlignment="textEnd"
                 android:textStyle="bold"
-                app:layout_constraintEnd_toEndOf="@+id/textViewOpenValue"
-                app:layout_constraintTop_toTopOf="@+id/textViewCloseTitle" />
+                app:layout_constraintEnd_toStartOf="@+id/divider2"
+                app:layout_constraintTop_toTopOf="@+id/textViewLowTitle" />
 
             <TextView
-                android:id="@+id/textViewPercRangeValue"
+                android:id="@+id/textViewOpenValue"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginEnd="8dp"
@@ -49,7 +53,7 @@
                 android:textAlignment="textEnd"
                 android:textStyle="bold"
                 app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintTop_toTopOf="@+id/textViewPercRangeTitle" />
+                app:layout_constraintTop_toTopOf="@+id/textViewOpenTitle" />
 
             <TextView
                 android:id="@+id/textViewDayChangePercent"
@@ -65,7 +69,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginStart="8dp"
                 android:layout_marginTop="8dp"
-                android:text="--"
+                android:text="--,---.--"
                 android:textSize="32sp"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
@@ -80,7 +84,7 @@
                 app:layout_constraintTop_toTopOf="@+id/textViewStockPrice" />
 
             <TextView
-                android:id="@+id/textViewDate"
+                android:id="@+id/textViewChange"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="8dp"
@@ -96,20 +100,20 @@
                 android:layout_marginStart="8dp"
                 android:text="VOLUME"
                 app:layout_constraintStart_toEndOf="@id/divider2"
-                app:layout_constraintTop_toTopOf="@+id/textViewOpenTitle" />
+                app:layout_constraintTop_toTopOf="@+id/textViewHighTitle" />
 
             <TextView
-                android:id="@+id/textViewOpenTitle"
+                android:id="@+id/textViewHighTitle"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="8dp"
                 android:layout_marginTop="16dp"
-                android:text="OPEN"
+                android:text="HIGH"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/textViewDate" />
+                app:layout_constraintTop_toBottomOf="@+id/textViewChange" />
 
             <TextView
-                android:id="@+id/textViewOpenValue"
+                android:id="@+id/textViewHighValue"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginEnd="8dp"
@@ -117,7 +121,7 @@
                 android:textAlignment="textEnd"
                 android:textStyle="bold"
                 app:layout_constraintEnd_toStartOf="@+id/divider2"
-                app:layout_constraintTop_toTopOf="@+id/textViewOpenTitle" />
+                app:layout_constraintTop_toTopOf="@+id/textViewHighTitle" />
 
             <TextView
                 android:id="@+id/textViewVolumeValue"
@@ -130,44 +134,57 @@
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintTop_toTopOf="@+id/textViewVolumeTitle" />
 
-            <com.github.mikephil.charting.charts.LineChart
-                android:id="@+id/chart"
+            <androidx.cardview.widget.CardView
+                android:id="@+id/chartArea"
                 android:layout_width="match_parent"
-                android:layout_height="250dp"
-                android:layout_marginStart="8dp"
-                android:layout_marginTop="8dp"
-                android:layout_marginEnd="8dp"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintHorizontal_bias="1.0"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/textViewCloseValue" />
-
-            <com.github.mikephil.charting.charts.BarChart
-                android:id="@+id/chartVol"
-                android:layout_width="match_parent"
-                android:layout_height="100dp"
-                android:layout_marginStart="8dp"
-                android:layout_marginEnd="8dp"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintHorizontal_bias="1.0"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/chart" />
-
-            <Button
-                android:id="@+id/buttonAddToWatchlist"
-                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_margin="8dp"
+                app:layout_constraintTop_toBottomOf="@+id/textViewLowValue"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent">
+
+                <androidx.constraintlayout.widget.ConstraintLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent">
+
+                    <com.github.mikephil.charting.charts.LineChart
+                        android:id="@+id/chart"
+                        android:layout_width="match_parent"
+                        android:layout_height="250dp"
+                        android:layout_marginStart="8dp"
+                        android:layout_marginTop="8dp"
+                        android:layout_marginEnd="8dp"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toTopOf="parent" />
+
+                    <com.github.mikephil.charting.charts.BarChart
+                        android:id="@+id/chartVol"
+                        android:layout_width="match_parent"
+                        android:layout_height="100dp"
+                        android:layout_marginStart="8dp"
+                        android:layout_marginEnd="8dp"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toBottomOf="@+id/chart" />
+                </androidx.constraintlayout.widget.ConstraintLayout>
+
+
+            </androidx.cardview.widget.CardView>
+
+
+            <ImageButton
+                android:id="@+id/buttonAddToWatchlist"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
                 android:layout_marginEnd="8dp"
-                android:background="@color/colorPrimary"
-                android:icon="@drawable/ic_baseline_add_24"
+                android:background="@color/colorAccent"
                 android:padding="4dp"
-                android:paddingStart="8dp"
-                android:paddingEnd="0dp"
                 android:text="Watchlist"
                 android:textSize="10sp"
-                app:icon="@drawable/ic_baseline_add_24"
                 app:iconGravity="end"
                 app:layout_constraintBottom_toBottomOf="@+id/textViewStockPrice"
+                app:layout_constraintDimensionRatio="h,1:1"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintTop_toTopOf="@+id/textViewStockPrice" />
 
@@ -179,7 +196,7 @@
                 android:background="?android:attr/listDivider"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/chartVol" />
+                app:layout_constraintTop_toBottomOf="@+id/chartArea" />
 
             <TextView
                 android:id="@+id/textViewHeadlines"

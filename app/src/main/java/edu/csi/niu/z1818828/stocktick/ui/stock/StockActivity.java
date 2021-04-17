@@ -1,16 +1,25 @@
 package edu.csi.niu.z1818828.stocktick.ui.stock;
 
+import android.annotation.SuppressLint;
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
+import android.content.res.Configuration;
 import android.graphics.Color;
 import android.graphics.DashPathEffect;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
+import android.util.AttributeSet;
 import android.util.Log;
 import android.view.View;
-import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
@@ -29,10 +38,13 @@ import com.github.mikephil.charting.data.Entry;
 import com.github.mikephil.charting.data.LineData;
 import com.github.mikephil.charting.data.LineDataSet;
 import com.github.mikephil.charting.formatter.IFillFormatter;
+import com.github.mikephil.charting.formatter.ValueFormatter;
 import com.github.mikephil.charting.interfaces.dataprovider.LineDataProvider;
 import com.github.mikephil.charting.interfaces.datasets.IBarDataSet;
 import com.github.mikephil.charting.interfaces.datasets.ILineDataSet;
 import com.github.mikephil.charting.utils.Utils;
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 import com.kwabenaberko.newsapilib.NewsApiClient;
 import com.kwabenaberko.newsapilib.models.request.EverythingRequest;
 import com.kwabenaberko.newsapilib.models.response.ArticleResponse;
@@ -43,10 +55,13 @@ import org.json.JSONObject;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.lang.reflect.Type;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLEncoder;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 
@@ -54,6 +69,12 @@ import edu.csi.niu.z1818828.stocktick.R;
 import edu.csi.niu.z1818828.stocktick.adapters.NewsAdapter;
 import edu.csi.niu.z1818828.stocktick.objects.Article;
 import edu.csi.niu.z1818828.stocktick.objects.Stock;
+
+import static edu.csi.niu.z1818828.stocktick.R.color.colorAccent;
+import static edu.csi.niu.z1818828.stocktick.R.color.colorNegative;
+import static edu.csi.niu.z1818828.stocktick.R.color.colorPositive;
+import static edu.csi.niu.z1818828.stocktick.R.color.colorPrimary;
+import static edu.csi.niu.z1818828.stocktick.R.color.colorStockChartGradient;
 
 public class StockActivity extends AppCompatActivity {
     private TextView textViewStockPrice;
@@ -64,12 +85,12 @@ public class StockActivity extends AppCompatActivity {
     private TextView textViewDayRangeValue;
     private TextView textViewVolumeValue;
     private TextView textViewCloseValue;
-    private TextView textViewWeekRangeValue;
-    private TextView textViewPercRangeValue;
+    private TextView textViewHighValue;
+    private TextView textViewLowValue;
     private RecyclerView recyclerViewNews;
     private LineChart lineChart;
     private BarChart barChart;
-    private Button buttonWatchlist;
+    private ImageButton buttonWatchlist;
 
     //Create objects to store json results
     JSONObject jsonStock;
@@ -84,45 +105,42 @@ public class StockActivity extends AppCompatActivity {
     //Create a default stock object
     Stock stock = new Stock();
 
-    NewsAdapter newsAdapter;
+//    private String stockSymbol;
+//    private String stockName;
 
-    private String stockSymbol;
-    private String stockName;
+    private String lastHigh;
+    private String lastLow;
+    private String lastOpen;
+    private String lastClose;
 
-    List<Article> articleList = new ArrayList<>();
+    private String stockChange = "--";
+    private String stockChangePercent = "--";
 
+    private boolean loaded = false;
+
+    private NewsAdapter newsAdapter;
+
+    private List<Article> articleList = new ArrayList<>();
+    private List<Stock> watchlist;
+
+    @SuppressLint("ResourceAsColor")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_stock);
 
-
-        /*
-        TODO
-        Fix watchlist
-        Finish stock page
-        Fiz day:)
-
-        Implement news page
-        Mivers page???
-
-        Modify watchlist stock xml
-        Search results??
-
-
-         */
+        //Load the watchlist
+        loadData();
 
         //Bind the views
         textViewStockPrice = findViewById(R.id.textViewStockPrice);
         textViewDayChange = findViewById(R.id.textViewDayChange);
         textViewDayChangePercent = findViewById(R.id.textViewDayChangePercent);
-        textViewDate = findViewById(R.id.textViewDate);
+        textViewDate = findViewById(R.id.textViewChange);
         textViewOpenValue = findViewById(R.id.textViewOpenValue);
-        textViewDayRangeValue = findViewById(R.id.textViewDayRangeValue);
         textViewVolumeValue = findViewById(R.id.textViewVolumeValue);
-        textViewCloseValue = findViewById(R.id.textViewCloseValue);
-        textViewWeekRangeValue = findViewById(R.id.textViewWeekRangeValue);
-        textViewPercRangeValue = findViewById(R.id.textViewPercRangeValue);
+        textViewHighValue = findViewById(R.id.textViewHighValue);
+        textViewLowValue = findViewById(R.id.textViewLowValue);
 
         ActionBar toolbar = getSupportActionBar();
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
@@ -140,55 +158,166 @@ public class StockActivity extends AppCompatActivity {
 
         //Create listener for the add to watchlist button
         buttonWatchlist = findViewById(R.id.buttonAddToWatchlist);
-        buttonWatchlist.setOnClickListener(new View.OnClickListener() {
+        buttonWatchlist.setOnClickListener(toggleWatchlistButton);
+
+        //Start a new thread to retrieve data
+        new Thread(new Runnable() {
             @Override
-            public void onClick(View v) {
-                Intent intent = new Intent();
-                intent.putExtra(stockSymbol, stockSymbol);
-                Toast.makeText(v.getContext(), "Added to the watchlist", Toast.LENGTH_SHORT).show();
+            public void run() {
+                //Get the stock info
+                try {
+                    Intent intent = getIntent();
+                    try {
+                        stock.setStockName((intent.getStringExtra("stockName")).toUpperCase());
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+
+                    stock.setSymbol(intent.getStringExtra("stockSymbol").toUpperCase());
+
+                    //Load the data
+                    loadStockData();
+
+                    Date date = new Date();
+                    SimpleDateFormat df = new SimpleDateFormat("MM/dd/yyyy");
+                    String today = df.format(date);
+
+                    //If the user does not have stock, get it
+                    if (!hasStock()) {
+                        retrieveStock();
+                    }
+                    //If they do have the stock, is it up to date?
+                    else {
+                        if (stock.getDate() != null) {
+                            if (stock.getDate().compareTo(today) != 0) {
+                                retrieveStock();
+                            }
+                        }
+                    }
+
+                    //Get the news
+                    retrieveNews();
+
+                    //Retrieve the UI thread
+                    new Handler(Looper.getMainLooper()).post(new Runnable() {
+                        @Override
+                        public void run() {
+                            textViewStockPrice.setText(stock.formatPrice(stock.getPrice()));
+                            textViewOpenValue.setText(stock.formatPrice(stock.getOpenPrice()));
+                            textViewHighValue.setText(stock.formatPrice(stock.getDayHigh()));
+                            textViewLowValue.setText(stock.formatPrice(stock.getDayLow()));
+                            textViewDate.setText(stock.formatDateDay(stock.getDate()));
+                            textViewVolumeValue.setText(stock.prettifyVolume());
+
+
+                            if (stock.getChange() < 0) {
+                                textViewDayChange.setTextColor(colorNegative);
+                                textViewDayChangePercent.setTextColor(colorNegative);
+                            } else {
+                                textViewDayChange.setText("+" + stock.formatChange(stock.getChange()));
+                                textViewDayChangePercent.setText("+" + stock.formatChangePercentage(stock.getChangePct()));
+                                textViewDayChange.setTextColor(colorPositive);
+                                textViewDayChangePercent.setTextColor(colorPositive);
+                            }
+
+                            newsAdapter.notifyDataSetChanged();
+                        }
+                    });
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+
+                //Retrieve the UI thread
+                new Handler(Looper.getMainLooper()).post(new Runnable() {
+                    @Override
+                    public void run() {
+                        //Set the icon status
+                        setWatchlistIcon();
+
+                        //Set the title of the page
+                        setTitle(stock.getSymbol());
+                        getSupportActionBar().setSubtitle(stock.getStockName());
+
+                        //Setup the charts
+                        setChartPrice();
+                        setChartVolume();
+
+                        setLoaded(true);
+                    }
+                });
             }
-        });
+        }).start();
+    }
 
-        //Get the stock info
-        try {
-            Intent intent = getIntent();
-            //stockName = (intent.getStringExtra("stockName")).toUpperCase();
-            stockSymbol = intent.getStringExtra("stockSymbol").toUpperCase();
+    @Nullable
+    @Override
+    public View onCreateView(@Nullable View parent, @NonNull String name, @NonNull Context context, @NonNull AttributeSet attrs) {
+        return super.onCreateView(parent, name, context, attrs);
+    }
 
-            //retrieveStock();
-            retrieveStockData();
-            retrieveNews();
-
-            Thread.sleep(1500);
-            //wait();
-            //parseJSONStockObject();
-            parseJSONStockDataObject();
-
-            textViewStockPrice.setText(stock.formatPrice(stock.getPrice()));
-            textViewOpenValue.setText(stock.formatPrice(stock.getOpenPrice()));
-            textViewCloseValue.setText(stock.formatPrice(stock.getClosePrice()));
-            textViewDate.setText(stock.formatDate(stock.getDate()));
-            //textViewStockPrice.setText( Double.toString( stock.getDayLow() ) );
-            textViewVolumeValue.setText(stock.prettifyVolume());
-            //textViewDayChange.setText( Double.toString( stock.get() ) );
-            textViewDayChangePercent.setText(Double.toString(stock.getRange()));
-
-            newsAdapter.notifyDataSetChanged();
-
-        } catch (Exception e) {
-            e.printStackTrace();
+    View.OnClickListener toggleWatchlistButton = new View.OnClickListener() {
+        @Override
+        public void onClick(View v) {
+            if (loaded) {
+                if (hasStock()) {
+                    removeFromWatchlist();
+                    setWatchlistIcon();
+                } else {
+                    saveToWatchlist();
+                    setWatchlistIcon();
+                }
+            }
         }
+    };
 
-        //Set the title of the page
-        setTitle(stockSymbol);
-        getSupportActionBar().setSubtitle(stockName);
+    @Override
+    protected void onStart() {
+        super.onStart();
+    }
+
+    public void setWatchlistIcon() {
+        //Set button
+        if (hasStock()) {
+            buttonWatchlist.setImageDrawable(getResources().getDrawable(R.drawable.ic_baseline_delete_24));
+            buttonWatchlist.setBackgroundColor(getResources().getColor(colorNegative));
+        } else {
+            buttonWatchlist.setImageDrawable(getResources().getDrawable(R.drawable.ic_baseline_add_24));
+            buttonWatchlist.setBackgroundColor(getResources().getColor(colorAccent));
+        }
+    }
 
 
-        //Setup the charts
-        setChartPrice();
+    private void retrieveStock() throws InterruptedException {
+        //Retrieve the stock info
+        retrieveStockData();
+        Thread.sleep(1500);
+        parseJSONStockDataObject();
+        calculateChange();
+    }
 
-        setChartVolume();
+    private void loadStockData() {
+        if (watchlist.size() > 0) {
+            String temp = stock.getSymbol();
+            for (int i = 0; i < watchlist.size(); i++) {
+                String key = watchlist.get(i).getSymbol();
+                if (key.compareTo(temp) == 0) {
+                    stock = watchlist.get(i);
+                }
+            }
+        }
+    }
 
+    private int colorMode() {
+        int nightMode = getResources().getConfiguration().uiMode & Configuration.UI_MODE_NIGHT_MASK;
+
+        switch (nightMode) {
+            case Configuration.UI_MODE_NIGHT_YES:
+                return getResources().getColor(R.color.textColorDark);
+            case Configuration.UI_MODE_NIGHT_NO:
+                return getResources().getColor(R.color.textColorLight);
+            default:
+                return getResources().getColor(R.color.textColorGray);
+        }
     }
 
     @Override
@@ -197,37 +326,81 @@ public class StockActivity extends AppCompatActivity {
         overridePendingTransition(R.anim.slide_in_left, R.anim.slide_out_right);
     }
 
-    private void parseJSONStockObject() {
-        try {
-            JSONObject item = jsonStock.getJSONObject("Global Quote");
+    private void setLoaded(boolean status) {
+        loaded = status;
+    }
 
-            String open = item.getString("02. open");
-            String high = item.getString("03. high");
-            String low = item.getString("04. low");
-            String price = item.getString("05. price");
-            String volume = item.getString("06. volume");
-            String change = item.getString("09. change");
-            String changePct = item.getString("10. change percent");
+    private void removeFromWatchlist() {
+        if (watchlist.size() > 0) {
+            String temp = stock.getSymbol();
+            for (int i = 0; i < watchlist.size(); i++) {
+                String key = watchlist.get(i).getSymbol();
+                if (key.compareTo(temp) == 0) {
+                    watchlist.remove(i);
+                    saveData();
+                    Toast.makeText(this, stock.getSymbol() + " removed from watchlist", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+            }
+        }
+    }
 
-            stock.setOpenPrice(Double.valueOf(open));
-            stock.setDayHigh(Double.valueOf(high));
-            stock.setDayLow(Double.valueOf(low));
-            stock.setPrice(Double.valueOf(price));
-            stock.setVolume(Double.valueOf(volume));
-            //stock.set(Double.valueOf(open));
+    private void saveToWatchlist() {
+        Log.i("STOCK ADDED", stock.getSymbol());
+        if (!hasStock()) {
+            watchlist.add(stock);
+        }
 
-            //TODO fix this. changepct is "31.000%" not actual number
-            //stock.setRange(Double.valueOf(changePct));
-        } catch (JSONException e) {
-            e.printStackTrace();
-        } catch (Exception e) {
-            e.printStackTrace();
+        saveData();
+        Toast.makeText(this, stock.getSymbol() + " added to watchlist", Toast.LENGTH_SHORT).show();
+    }
+
+    private boolean hasStock() {
+        if (watchlist.size() > 0) {
+            String temp = stock.getSymbol();
+            for (int i = 0; i < watchlist.size(); i++) {
+                String key = watchlist.get(i).getSymbol();
+                if (key.compareTo(temp) == 0) {
+                    return true;
+                }
+            }
+        }
+
+        return false;
+    }
+
+    private void saveData() {
+        SharedPreferences sharedPreferences = getSharedPreferences("SharedPref", MODE_PRIVATE);
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+
+        Gson gson = new Gson();
+
+        String json = gson.toJson(watchlist);
+        editor.putString("watchlist", json);
+
+        editor.apply();
+    }
+
+    private void loadData() {
+        SharedPreferences sharedPreferences = getSharedPreferences("SharedPref", MODE_PRIVATE);
+
+        Gson gson = new Gson();
+
+        String json = sharedPreferences.getString("watchlist", null);
+
+        Type type = new TypeToken<ArrayList<Stock>>() {
+        }.getType();
+
+        watchlist = gson.fromJson(json, type);
+
+        if (watchlist == null) {
+            watchlist = new ArrayList<>();
         }
     }
 
     private void parseJSONStockDataObject() {
         try {
-            Boolean first = true;
+            int counter = 0;
             JSONObject item = jsonStockData.getJSONObject("Time Series (Daily)");
 
             Iterator<?> keys = item.keys();
@@ -238,7 +411,7 @@ public class StockActivity extends AppCompatActivity {
 
                     //Add date to date array
                     String date = key;
-                    dateArray.add(date);
+                    dateArray.add(0, date);
 
                     //Add close to price array
                     String close = object.getString("4. close");
@@ -249,96 +422,56 @@ public class StockActivity extends AppCompatActivity {
                     volumeArray.add(Float.valueOf(volume));
 
                     //Set stock data to most recent
-                    if (first) {
+                    if (counter == 0) {
                         String open = object.getString("1. open");
                         String high = object.getString("2. high");
                         String low = object.getString("3. low");
                         String price = object.getString("4. close");
 
                         stock.setDate(date);
-                        stock.setOpenPrice(Double.valueOf(open));
-                        stock.setClosePrice(Double.valueOf(price));
-                        stock.setDayHigh(Double.valueOf(high));
-                        stock.setDayLow(Double.valueOf(low));
-                        stock.setPrice(Double.valueOf(price));
-                        stock.setVolume(Double.valueOf(volume));
-
-                        first = false;
+                        stock.setOpenPrice(Double.parseDouble(open));
+                        stock.setPrice(Double.parseDouble(price));
+                        stock.setDayHigh(Double.parseDouble(high));
+                        stock.setDayLow(Double.parseDouble(low));
+                        stock.setPrice(Double.parseDouble(price));
+                        stock.setVolume(Double.parseDouble(volume));
+                    } else if (counter == 1) {
+                        lastOpen = object.getString("1. open");
+                        lastClose = object.getString("2. high");
+                        lastHigh = object.getString("3. low");
+                        lastLow = object.getString("4. close");
                     }
+
+                    counter++;
                 }
             }
-        } catch (JSONException e) {
-            e.printStackTrace();
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+
+    private void calculateChange() {
+        double close = stock.getPrice();
+        double prevOpen = stock.getOpenPrice();
+
+        stock.setChange(close - prevOpen);
+        stock.setChangePct(((close - prevOpen) / prevOpen) * 100);
     }
 
     private URL generateStockUrl(String query) {
         String key = getResources().getString(R.string.alphaVantage);
 
         try {
-            String url = "https://www.alphavantage.co/query?function=" + query + "&symbol=" + stockSymbol + "&apikey=" + key;
+            String url = "https://www.alphavantage.co/query?function=" + query + "&symbol=" + stock.getSymbol() + "&apikey=" + key;
             System.out.println("URL: " + url);
 
-            String furl = url + URLEncoder.encode(stockSymbol, "UTF-8");
+            String furl = url + URLEncoder.encode(stock.getSymbol(), "UTF-8");
 
             return new URL(furl);
         } catch (Exception e) {
             e.printStackTrace();
             return null;
         }
-    }
-
-    private void retrieveStock() {
-        new Thread(new Runnable() {
-            HttpURLConnection connection = null;
-
-            @Override
-            public void run() {
-                boolean retrieved = false;
-
-                for (int i = 0; i < 12; i++) {
-                    if (!retrieved) {
-                        try {
-                            connection = (HttpURLConnection) generateStockUrl("GLOBAL_QUOTE").openConnection();
-                            int response = connection.getResponseCode();
-
-                            if (response == HttpURLConnection.HTTP_OK) {
-                                StringBuilder builder = new StringBuilder();
-
-                                try (BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getInputStream()))) {
-                                    String line;
-                                    while ((line = reader.readLine()) != null) {
-                                        builder.append(line);
-                                    }
-                                } catch (IOException e) {
-//                            Toast.makeText(this, "Unable to read data", Toast.LENGTH_SHORT).show();
-                                }
-
-                                jsonStock = new JSONObject(builder.toString());
-                                retrieved = true;
-                                //this.notify();
-
-                                Log.i("JSONStock", String.valueOf(jsonStock));
-                            } else {
-//                        Toast.makeText(this, "Heel", Toast.LENGTH_SHORT).show();
-                            }
-                        } catch (Exception e) {
-                            e.printStackTrace();
-
-                            try {
-                                wait(5000);
-                            } catch (InterruptedException interruptedException) {
-                                interruptedException.printStackTrace();
-                            }
-                        } finally {
-                            connection.disconnect();
-                        }
-                    }
-                }
-            }
-        }).start();
     }
 
     private void retrieveStockData() {
@@ -406,7 +539,8 @@ public class StockActivity extends AppCompatActivity {
                     NewsApiClient newsApiClient = new NewsApiClient(key);
                     newsApiClient.getEverything(
                             new EverythingRequest.Builder()
-                                    .q(stockSymbol)
+                                    .q(stock.getSymbol())
+                                    .sortBy("publishedAt")
                                     .build(),
                             new NewsApiClient.ArticlesResponseCallback() {
                                 @Override
@@ -424,7 +558,7 @@ public class StockActivity extends AppCompatActivity {
 
                                         newsAdapter.notifyDataSetChanged();
 
-                                        Log.i("News", articles.get(i).getTitle());
+                                        //Log.i("News", articles.get(i).getTitle());
                                     }
                                 }
 
@@ -444,10 +578,7 @@ public class StockActivity extends AppCompatActivity {
                     } catch (InterruptedException interruptedException) {
                         interruptedException.printStackTrace();
                     }
-                } finally {
-                    //connection.disconnect();
                 }
-
             }
         }).start();
     }
@@ -470,8 +601,6 @@ public class StockActivity extends AppCompatActivity {
             // enable scaling and dragging
             lineChart.setDragEnabled(true);
             lineChart.setScaleEnabled(true);
-            // chart.setScaleXEnabled(true);
-            // chart.setScaleYEnabled(true);
 
             // force pinch zoom along both axis
             lineChart.setPinchZoom(true);
@@ -481,6 +610,17 @@ public class StockActivity extends AppCompatActivity {
             xAxis = lineChart.getXAxis();
 
             xAxis.setDrawLabels(true);
+            xAxis.setLabelCount(10);
+            xAxis.setTextColor(colorMode());
+
+            xAxis.setValueFormatter(new ValueFormatter() {
+                @Override
+                public String getFormattedValue(float value) {
+                    return stock.formatDate(dateArray.get((int) value));
+                }
+            });
+
+            xAxis.setLabelRotationAngle(45);
 
             xAxis.setPosition(XAxis.XAxisPosition.BOTTOM);
 
@@ -489,26 +629,35 @@ public class StockActivity extends AppCompatActivity {
         }
         YAxis yAxis;
         {   // // Y-Axis Style // //
-            yAxis = lineChart.getAxisLeft();
+            yAxis = lineChart.getAxisRight();
 
+            //Setup labels
             yAxis.setDrawLabels(true);
+            yAxis.setTextColor(colorMode());
 
             // disable dual axis (only use LEFT axis)
-            lineChart.getAxisRight().setEnabled(false);
+            lineChart.getAxisRight().setEnabled(true);
+            lineChart.getAxisLeft().setEnabled(false);
 
-            yAxis.setPosition(YAxis.YAxisLabelPosition.INSIDE_CHART);
+            yAxis.setValueFormatter(new ValueFormatter() {
+                @Override
+                public String getFormattedValue(float value) {
+                    return stock.formatPriceLabel(value);
+                }
+            });
 
             // horizontal grid lines
             yAxis.enableGridDashedLine(10f, 10f, 0f);
-
-            // axis range
-//            yAxis.setAxisMaximum(200f);
-//            yAxis.setAxisMinimum(0);
         }
         Legend legend;
         {
             legend = lineChart.getLegend();
-            legend.setEnabled(false);
+            legend.setDrawInside(true);
+            legend.setEnabled(true);
+            legend.setTextColor(colorMode());
+
+            legend.setHorizontalAlignment(Legend.LegendHorizontalAlignment.RIGHT);
+            legend.setVerticalAlignment(Legend.LegendVerticalAlignment.TOP);
         }
 
         //Add data
@@ -527,51 +676,36 @@ public class StockActivity extends AppCompatActivity {
             // enable touch gestures
             barChart.setTouchEnabled(true);
 
-//            barChart.setBackgroundColor(R.color.colorStockChartGradient);
-
             // set listeners
-            //lineChart.setOnChartValueSelectedListener((OnChartValueSelectedListener) this);
             barChart.setDrawGridBackground(false);
-
-//            // create marker to display box when values are selected
-//            MyMarkerView mv = new MyMarkerView(this, R.layout.custom_marker_view);
-//
-//            // Set the marker to the chart
-//            mv.setChartView(chart);
-//            chart.setMarker(mv);
 
             // enable scaling and dragging
             barChart.setDragEnabled(true);
             barChart.setScaleEnabled(true);
-            // chart.setScaleXEnabled(true);
-            // chart.setScaleYEnabled(true);
-
-            // force pinch zoom along both axis
-//            barChart.setPinchZoom(true);
         }
         XAxis xAxis;
         {   // // X-Axis Style // //
             xAxis = barChart.getXAxis();
 
             xAxis.setDrawLabels(false);
-//            xAxis.setPosition(XAxis.XAxisPosition.BOTTOM);
-//
-//            // vertical grid lines
-//            xAxis.enableGridDashedLine(10f, 10f, 0f);
         }
         YAxis yAxis;
         {   // // Y-Axis Style // //
-            yAxis = barChart.getAxisLeft();
+            yAxis = barChart.getAxisRight();
 
             yAxis.setDrawLabels(true);
             yAxis.setLabelCount(3);
-//            yAxis.label
+            yAxis.setTextColor(colorMode());
 
-            yAxis.setPosition(YAxis.YAxisLabelPosition.INSIDE_CHART);
+            barChart.getAxisRight().setEnabled(true);
+            barChart.getAxisLeft().setEnabled(false);
 
-
-            // disable dual axis (only use LEFT axis)
-            barChart.getAxisRight().setEnabled(false);
+            yAxis.setValueFormatter(new ValueFormatter() {
+                @Override
+                public String getFormattedValue(float value) {
+                    return stock.prettifyVolumeLabel(value);
+                }
+            });
 
             // horizontal grid lines
             yAxis.enableGridDashedLine(10f, 10f, 0f);
@@ -625,11 +759,11 @@ public class StockActivity extends AppCompatActivity {
             lineChart.notifyDataSetChanged();
         } else {
             // create a dataset and give it a type
-            set = new LineDataSet(values, "Data Set");
+            set = new LineDataSet(values, "3 Month Chart");
 
             // black lines and points
-            set.setColor(R.color.colorStockChartGradient);
-            set.setCircleColor(R.color.colorStockChartGradient);
+            set.setColor(colorStockChartGradient);
+            set.setCircleColor(colorStockChartGradient);
 
             // line thickness
             set.setLineWidth(1f);
@@ -644,9 +778,9 @@ public class StockActivity extends AppCompatActivity {
             set.setFormSize(15.f);
 
             // draw selection line as dashed
-//            set.enableDashedHighlightLine(10f, 5f, 0f);
             set.disableDashedHighlightLine();
 
+            set.setHighLightColor(getResources().getColor(colorNegative));
 
             // set the filled area
             set.setDrawFilled(true);
@@ -695,6 +829,7 @@ public class StockActivity extends AppCompatActivity {
         if (barChart.getData() != null && barChart.getData().getDataSetCount() > 0) {
             set = (BarDataSet) barChart.getData().getDataSetByIndex(0);
             set.setValues(values);
+            set.setColors(new int[]{colorStockChartGradient, colorStockChartGradient}, this);
             set.notifyDataSetChanged();
             barChart.getData().notifyDataChanged();
             barChart.notifyDataSetChanged();
@@ -702,19 +837,12 @@ public class StockActivity extends AppCompatActivity {
             // create a dataset and give it a type
             set = new BarDataSet(values, "Data Set");
 
-            // black lines and points
-            set.setColor(R.color.colorStockChartGradient);
-            set.setBarBorderColor(R.color.colorStockChartGradient);
-
             // customize legend entry
             set.setFormLineWidth(1f);
             set.setFormLineDashEffect(new DashPathEffect(new float[]{10f, 5f}, 0f));
             set.setFormSize(15.f);
 
-
             set.setDrawValues(false);
-            set.setBarShadowColor(R.color.colorStockChartGradient);
-            set.setColors(R.color.colorStockChartGradient);
 
             ArrayList<IBarDataSet> dataSets = new ArrayList<>();
             dataSets.add(set); // add the data sets

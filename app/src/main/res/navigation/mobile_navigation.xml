@@ -5,38 +5,40 @@
     android:id="@+id/mobile_navigation"
     app:startDestination="@id/navigation_watchlist">
 
-    <fragment
-        android:id="@+id/navigation_watchlist"
-        android:name="edu.csi.niu.z1818828.stocktick.ui.watchlist.WatchlistFragment"
-        android:label="Watchlist"
-        tools:layout="@layout/fragment_watchlist" >
-        <action
-            android:id="@+id/action_navigation_watchlist_to_navigation_stock"
-            app:destination="@id/navigation_stock" />
-    </fragment>
+    <activity
+        android:id="@+id/navigation_stock"
+        android:name="edu.csi.niu.z1818828.stocktick.ui.stock.StockActivity"
+        tools:layout="@layout/activity_stock" />
 
     <fragment
         android:id="@+id/navigation_movers"
         android:name="edu.csi.niu.z1818828.stocktick.ui.movers.MoversFragment"
         android:label="Market Movers"
-        tools:layout="@layout/fragment_dashboard" >
+        tools:layout="@layout/fragment_movers">
         <action
             android:id="@+id/action_navigation_movers_to_navigation_stock"
             app:destination="@id/navigation_stock" />
     </fragment>
 
     <fragment
-        android:id="@+id/navigation_search"
-        android:name="edu.csi.niu.z1818828.stocktick.ui.news.NewsFragment"
-        android:label="Search"
-        tools:layout="@layout/fragment_news">
+        android:id="@+id/navigation_watchlist"
+        android:name="edu.csi.niu.z1818828.stocktick.ui.watchlist.WatchlistFragment"
+        android:label="Watchlist"
+        tools:layout="@layout/fragment_watchlist">
         <action
-            android:id="@+id/action_navigation_search_to_navigation_stock"
+            android:id="@+id/action_navigation_watchlist_to_navigation_stock"
             app:destination="@id/navigation_stock" />
     </fragment>
 
+    <activity
+        android:id="@+id/mainActivity"
+        android:name="edu.csi.niu.z1818828.stocktick.MainActivity"
+        android:label="MainActivity" />
+
     <fragment
-        android:id="@+id/navigation_stock"
-        android:name="edu.csi.niu.z1818828.stocktick.ui.stock.StockFragment"
-        tools:layout="@layout/fragment_stock" />
+        android:id="@+id/navigation_search"
+        android:name="edu.csi.niu.z1818828.stocktick.ui.news.NewsFragment"
+        android:label="News Search"
+        tools:layout="@layout/fragment_news" />
+
 </navigation>

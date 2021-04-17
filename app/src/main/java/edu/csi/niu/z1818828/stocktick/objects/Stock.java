@@ -1,5 +1,8 @@
 package edu.csi.niu.z1818828.stocktick.objects;
 
+import android.util.Log;
+import android.widget.Toast;
+
 import java.text.DecimalFormat;
 import java.time.LocalDate;
 import java.util.Scanner;
@@ -11,13 +14,15 @@ public class Stock {
     String date;
     double price;
     double openPrice;
-    double closePrice;
-    double weekHigh;
-    double weekLow;
+    //    double closePrice;
+//    double weekHigh;
+//    double weekLow;
     double dayHigh;
     double dayLow;
     double volume;
-    double range;
+    double change;
+    double changePct;
+    boolean selected = false;
 
     public Stock() {
     }
@@ -29,25 +34,63 @@ public class Stock {
         this.exchange = exchange;
         this.price = price;
         this.openPrice = openPrice;
-        this.closePrice = closePrice;
-        this.weekHigh = weekHigh;
-        this.weekLow = weekLow;
         this.dayHigh = dayHigh;
         this.dayLow = dayLow;
         this.volume = volume;
-        this.range = range;
     }
 
     public String prettifyVolume() {
-        DecimalFormat decimalFormat = new DecimalFormat("###.##");
-        String string;
+        DecimalFormat decimalFormat = new DecimalFormat("#,###.00");
 
-        if (volume < 1000000)
+        if (volume < 1000)
+            return decimalFormat.format(volume);
+        else if (volume < 1000000)
             return decimalFormat.format(volume / 1000) + "K";
         else if (volume < 1000000000)
-            return decimalFormat.format(volume / 10000) + "M";
+            return decimalFormat.format(volume / 1000000) + "M";
+        else if (volume >= 1000000000)
+            return decimalFormat.format(volume / 1000000000) + "B";
         else
             return decimalFormat.format(volume);
+    }
+
+    public String prettifyVolumeLabel(float label) {
+        DecimalFormat decimalFormat = new DecimalFormat("#,###");
+
+        if (label < 1000)
+            return decimalFormat.format(label);
+        else if (label < 1000000)
+            return decimalFormat.format(label / 1000) + "K";
+        else if (label < 1000000000)
+            return decimalFormat.format(label / 1000000) + "M";
+        else if (label >= 1000000000)
+            return decimalFormat.format(label / 1000000000) + "B";
+        else
+            return decimalFormat.format(label);
+    }
+
+    public String formatDateDay(String date) {
+        if (date != null) {
+            String year, month, day;
+            Scanner scanner = new Scanner(date);
+            scanner.useDelimiter("-");
+
+            year = scanner.next();
+            month = scanner.next();
+            day = scanner.next();
+
+            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+                LocalDate localDate = LocalDate.of(Integer.parseInt(year), Integer.parseInt(month), Integer.parseInt(day));
+                java.time.DayOfWeek dayOfWeek = localDate.getDayOfWeek();
+
+                return dayOfWeek + ", " + month + "/" + day + "/" + year;
+            } else {
+                return month + "/" + day + "/" + year;
+            }
+        } else {
+            Log.e("formateDateDay", "Date was null and could not format");
+            return date;
+        }
     }
 
     public String formatDate(String date) {
@@ -55,27 +98,42 @@ public class Stock {
         Scanner scanner = new Scanner(date);
         scanner.useDelimiter("-");
 
-        year = scanner.next();
+        scanner.next();
         month = scanner.next();
         day = scanner.next();
 
-        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
-            LocalDate localDate = LocalDate.of(Integer.parseInt(year), Integer.parseInt(month), Integer.parseInt(month));
-            java.time.DayOfWeek dayOfWeek = localDate.getDayOfWeek();
-            return dayOfWeek + ", " + month + "/" + day + "/" + year;
-        } else {
-            return month + "/" + day + "/" + year;
-        }
-
+        return month + "/" + day;
     }
 
-    public String formatPrice(Double price) {
-        DecimalFormat decimalFormat = new DecimalFormat("#,###.00");
+    public String formatPrice(double price) {
+        DecimalFormat decimalFormat = new DecimalFormat("#,##0.00");
         return decimalFormat.format(price);
     }
 
-    public String formatPercent(String string) {
-        return string;
+    public String formatPriceLabel(float price) {
+        DecimalFormat decimalFormat = new DecimalFormat("##,###");
+        String item;
+
+        item = decimalFormat.format(price);
+//        if(price < 0) {
+//            item = String.format("0.3f", price);
+//        }
+//        else {
+////            item = decimalFormat.format(price);
+////            item = String.format("%4$f", price);
+//        }
+
+
+        return item;
+    }
+
+    public String formatChange(double _change) {
+        return new DecimalFormat("#,###.##").format(_change);
+    }
+
+    public String formatChangePercentage(double _change) {
+        DecimalFormat format = new DecimalFormat("#,##0.00");
+        return format.format(_change) + "%";
     }
 
     public String getSymbol() {
@@ -118,30 +176,6 @@ public class Stock {
         this.openPrice = openPrice;
     }
 
-    public double getClosePrice() {
-        return closePrice;
-    }
-
-    public void setClosePrice(double closePrice) {
-        this.closePrice = closePrice;
-    }
-
-    public double getWeekHigh() {
-        return weekHigh;
-    }
-
-    public void setWeekHigh(double weekHigh) {
-        this.weekHigh = weekHigh;
-    }
-
-    public double getWeekLow() {
-        return weekLow;
-    }
-
-    public void setWeekLow(double weekLow) {
-        this.weekLow = weekLow;
-    }
-
     public double getDayHigh() {
         return dayHigh;
     }
@@ -166,20 +200,37 @@ public class Stock {
         this.volume = volume;
     }
 
-    public double getRange() {
-        return range;
-    }
-
-    public void setRange(double range) {
-        this.range = range;
-    }
-
     public String getDate() {
         return date;
     }
 
     public void setDate(String date) {
         this.date = date;
+    }
+
+    public double getChange() {
+        return change;
+    }
+
+    public void setChange(double change) {
+        this.change = change;
+    }
+
+    public double getChangePct() {
+        return changePct;
+    }
+
+    public void setChangePct(double changePct) {
+        this.changePct = changePct;
+    }
+
+    //Adapter methods
+    public void setSelected(boolean selected) {
+        this.selected = selected;
+    }
+
+    public boolean isSelected() {
+        return selected;
     }
 }
 

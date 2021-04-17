@@ -13,34 +13,17 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.List;
 
-import edu.csi.niu.z1818828.stocktick.MainActivity;
 import edu.csi.niu.z1818828.stocktick.R;
 import edu.csi.niu.z1818828.stocktick.objects.Stock;
 import edu.csi.niu.z1818828.stocktick.ui.stock.StockActivity;
 
-public class WatchlistStockAdapter extends RecyclerView.Adapter<WatchlistStockAdapter.ViewHolder> {
+public class StockAdapter extends RecyclerView.Adapter<StockAdapter.ViewHolder> {
     private List<Stock> stocks;
     private LayoutInflater inflater;
     private Context context;
     private AdapterView.OnItemClickListener listener;
 
-    public void setOnItemClickListener(OnItemClickListener onItemClickListener) {
-    }
-
-    public interface ContextProvider {
-        Context getContext();
-    }
-
-
-    public interface OnItemClickListener {
-        void onItemClick(int position);
-//        void onDeleteClick(int position);
-    }
-    public void setOnItemClickListener(AdapterView.OnItemClickListener listener) {
-        this.listener = listener;
-    }
-
-    public WatchlistStockAdapter(Context context, List<Stock> stocks) {
+    public StockAdapter(Context context, List<Stock> stocks) {
         this.inflater = LayoutInflater.from(context);
         this.context = context;
         this.stocks = stocks;
@@ -48,7 +31,7 @@ public class WatchlistStockAdapter extends RecyclerView.Adapter<WatchlistStockAd
 
     @Override
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        View view = inflater.inflate(R.layout.watchlist_stock, parent, false);
+        View view = inflater.inflate(R.layout.mover_stock, parent, false);
         return new ViewHolder(view, listener);
     }
 
@@ -60,41 +43,32 @@ public class WatchlistStockAdapter extends RecyclerView.Adapter<WatchlistStockAd
         holder.textViewExchange.setText(stock.getExchange());
         holder.textViewStockName.setText(stock.getStockName());
         holder.textViewPrice.setText(String.format("%.2f", stock.getPrice()));
+        holder.textViewPercentChange.setText(stock.formatChangePercentage(stock.getChangePct()));
 
-        if(stock.getRange() >= 0) {
-            holder.textViewPercentChange.setText("+" + String.format("%.2f", stock.getRange()) + "%");
+        //holder.textViewDate.setText( stock.formatDateDay(stock.getDate()));
+
+        //Change the stock change color
+        if (stock.getChangePct() >= 0) {
+            holder.textViewPercentChange.setText("+" + stock.formatChangePercentage(stock.getChangePct()));
             holder.textViewPercentChange.setBackgroundColor(context.getResources().getColor(R.color.colorPositive));
-        }
-        else {
-            holder.textViewPercentChange.setText(String.format("%.2f", stock.getRange()) + "%");
+        } else {
             holder.textViewPercentChange.setBackgroundColor(context.getResources().getColor(R.color.colorNegative));
         }
 
-        holder.itemView.setOnClickListener(v -> {
-            //Toast.makeText(context, position + " has been selected", Toast.LENGTH_SHORT).show();
+        holder.itemView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(context, StockActivity.class);
+                intent.putExtra("stockSymbol", stock.getSymbol());
 
-//            ((FragmentActivity) v.getContext()).getSupportFragmentManager().beginTransaction()
-//                    .replace(R.id.nav_host_fragment, new StockFragment()).commit();
+                try {
+                    intent.putExtra("stockName", stock.getStockName());
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
 
-//            Fragment fragment = new Fragment();
-//            FragmentManager fm = context.get
-//            FragmentTransaction ft = fm.beginTransaction();
-//            ft.replace(R.id.fragment_container_view_tag, fragment);
-//            ft.commit();
-            Intent intent = new Intent(v.getContext(), StockActivity.class);
-            intent.putExtra("stockSymbol", stock.getSymbol());
-            intent.putExtra("stockName", stock.getStockName());
-            intent.putExtra("volume", stock.getVolume());
-            intent.putExtra("pcntRange", stock.getRange());
+                context.startActivity(intent);
 
-            //Store data for card
-            //intent.putExtra(EXTRA, item.getTitle());
-
-            //Start new activity
-            v.getContext().startActivity(intent);
-
-            if(context.getClass().equals(MainActivity.class)) {
-                ((MainActivity) context).overridePendingTransition(R.anim.slide_in_right, R.anim.slide_out_left);
             }
         });
     }
@@ -104,12 +78,13 @@ public class WatchlistStockAdapter extends RecyclerView.Adapter<WatchlistStockAd
         return stocks.size();
     }
 
-    public class ViewHolder extends RecyclerView.ViewHolder {
+    public class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
         TextView textViewSymbol;
         TextView textViewExchange;
         TextView textViewStockName;
         TextView textViewPercentChange;
         TextView textViewPrice;
+        TextView textViewChange;
 
         public ViewHolder(@NonNull View itemView, AdapterView.OnItemClickListener listener) {
             super(itemView);
@@ -118,7 +93,13 @@ public class WatchlistStockAdapter extends RecyclerView.Adapter<WatchlistStockAd
             textViewExchange = itemView.findViewById(R.id.textViewSource);
             textViewStockName = itemView.findViewById(R.id.textViewStockName);
             textViewPercentChange = itemView.findViewById(R.id.textViewPercentChange);
+            textViewChange = itemView.findViewById(R.id.textViewChange);
             textViewPrice = itemView.findViewById(R.id.textViewPrice);
+        }
+
+        @Override
+        public void onClick(View v) {
+
         }
     }
 }

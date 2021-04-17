@@ -8,4 +8,13 @@
         android:title="Search"
         app:actionViewClass="android.widget.SearchView"
         app:showAsAction="ifRoom" />
+    <item
+        android:id="@+id/menu_selectall"
+        android:icon="@drawable/ic_baseline_select_all_24"
+        app:showAsAction="ifRoom"
+        android:title="Select All" />
+    <item
+        android:id="@+id/menu_deletaall"
+        android:title="Delete All"
+        app:showAsAction="never" />
 </menu>

@@ -16,95 +16,124 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.appcompat.widget.Toolbar;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
-import org.json.JSONObject;
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.net.HttpURLConnection;
-import java.net.URL;
-import java.net.URLEncoder;
+import java.lang.reflect.Type;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 import edu.csi.niu.z1818828.stocktick.R;
+import edu.csi.niu.z1818828.stocktick.adapters.WatchlistAdapter;
 import edu.csi.niu.z1818828.stocktick.objects.Stock;
-import edu.csi.niu.z1818828.stocktick.adapters.WatchlistStockAdapter;
 import edu.csi.niu.z1818828.stocktick.ui.stock.StockActivity;
 
 import static android.content.Context.MODE_PRIVATE;
 
 public class WatchlistFragment extends Fragment {
-    private WatchlistViewModel watchlistViewModel;
+    TextView textViewEmptyList;
+
+    android.view.ActionMode actionMode;
 
     List<Stock> watchlist = new ArrayList<>();
 
-    JSONObject jsonSearch = null;
+    SwipeRefreshLayout swipeRefreshLayout;
 
-    WatchlistStockAdapter watchlistStockAdapter;
-    Toolbar toolbar;
+    WatchlistAdapter watchlistAdapter;
 
-    @Override //called first
+    @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
         setHasOptionsMenu(true);
-//        getContext().getSupportActionBar(toolbar);
-//        toolbar.inflateMenu(R.menu.watchlist_menu);
 
 
-        //Check the user's watchlist, query on create
-        //TODO add a slide down to refresh (re-query)
+        //Load the watchlist
+        loadData();
 
-        Stock stock1 = new Stock("TSLA", "Tesla Inc", "NASDAQ", 745.40, 740.23, 754.34, 900.23, 500.23, 834.93, 700.34, 9000000, 0.45);
-        Stock stock2 = new Stock("CTRM", "Castor Maritime Inc", "NYSE", 745.40, 740.23, 754.34, 900.23, 500.23, 834.93, 700.34, 9000000, -0.45);
-        Stock stock3 = new Stock("GME", "GameStop Corp", "NYSE", 140.99, 141.88, 141.09, 185.88, 132.00, 145.38, 132.00, 10611571, 0.45);
-
-        watchlist.add(stock1);
-        watchlist.add(stock2);
-        watchlist.add(stock3);
-
+        //Remove any selections that may have slipped through
+        deselectAll();
 
         //Create adapter using watchlist
-        watchlistStockAdapter = new WatchlistStockAdapter(getContext(), watchlist);
+        watchlistAdapter = new WatchlistAdapter(getContext(), watchlist, null);
+        watchlistAdapter.setListener(new WatchlistAdapter.OnStockClickListener() {
+            @Override
+            public void onStockClick(int position) {
+                //If any stocks are selected, enable quick select
+                if (watchlistAdapter.bSelectionGroup) {
+                    toggleSelection(watchlist.get(position));
+                    watchlistAdapter.toggleSelection(position);
+                    watchlistAdapter.notifyDataSetChanged();
+                    enableActionMode(position);
+                } else {
+                    Intent intent = new Intent(getContext(), StockActivity.class);
+                    intent.putExtra("stockSymbol", watchlist.get(position).getSymbol());
+                    startActivity(intent);
+                }
+            }
 
+            @Override
+            public void onStockLongClick(int position) {
+                Log.w("WatchlistFragment", "onLongClick: pressed");
+                toggleSelection(watchlist.get(position));
+                enableActionMode(position);
+            }
+        });
+
+        watchlistAdapter.notifyDataSetChanged();
     }
 
-    //Called 2nd
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        watchlistViewModel = new ViewModelProvider(this).get(WatchlistViewModel.class);
+        //watchlistViewModel = new ViewModelProvider(this).get(WatchlistViewModel.class);
         View root = inflater.inflate(R.layout.fragment_watchlist, container, false);
 
         final RecyclerView recyclerViewWatchlist = root.findViewById(R.id.recyclerViewWatchlist);
-        final TextView textViewEmptyList = root.findViewById(R.id.textViewNoStocks);
-//        toolbar = root.findViewById(R.id.toolbar);
+        textViewEmptyList = root.findViewById(R.id.textViewNoStocks);
+        swipeRefreshLayout = root.findViewById(R.id.swipeRefresh);
+        swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                //Load data from preferences
+                loadData();
 
-        recyclerViewWatchlist.setAdapter(watchlistStockAdapter);
-        watchlistStockAdapter.notifyDataSetChanged();
+                //Update the adapter
+                watchlistAdapter.notifyDataSetChanged();
 
+                //Update UI
+                deselectAll();
+                updateNoStocks();
+
+                //End refresh
+                swipeRefreshLayout.setRefreshing(false);
+            }
+        });
+
+        recyclerViewWatchlist.setAdapter(watchlistAdapter);
         recyclerViewWatchlist.setLayoutManager(new LinearLayoutManager(getContext(), LinearLayoutManager.VERTICAL, false));
 
-        if(watchlist.size() == 0) {
-            textViewEmptyList.setVisibility(View.VISIBLE);
-        }
-        else {
-            textViewEmptyList.setVisibility(View.GONE);
-        }
+        watchlistAdapter.notifyDataSetChanged();
 
-//        final TextView textView = root.findViewById(R.id.text_home);
-//        watchlistViewModel.getText().observe(getViewLifecycleOwner(), new Observer<String>() {
-//            @Override
-//            public void onChanged(@Nullable String s) {
-//                textView.setText(s);
-//            }
-//        });
+        updateNoStocks();
+
         return root;
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        loadData();
+        watchlistAdapter.notifyDataSetChanged();
+
+        deselectAll();
+
+        updateNoStocks();
     }
 
     @Override
@@ -113,7 +142,7 @@ public class WatchlistFragment extends Fragment {
 
         MenuItem search = menu.findItem(R.id.app_bar_search);
         SearchView searchView = (SearchView) search.getActionView();
-        searchView.setQueryHint("Search");
+        searchView.setQueryHint("Ticker symbol (e.g. ABC)");
         searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
             public boolean onQueryTextSubmit(String query) {
@@ -138,6 +167,28 @@ public class WatchlistFragment extends Fragment {
             case R.id.app_bar_search:
                 Toast.makeText(getContext(), "Search selected", Toast.LENGTH_SHORT).show();
                 return true;
+            case R.id.menu_selectall:
+                if (watchlistAdapter.isAllSelected()) {
+                    watchlistAdapter.deselectAll();
+                    deselectAll();
+                } else {
+                    watchlistAdapter.selectAll();
+                    selectAll();
+                    enableActionMode(-1);
+                }
+                return true;
+            case R.id.menu_deletaall:
+                //Remove data from preferences
+                clearData();
+                removeData();
+
+                //Remove data from the adapter
+                watchlistAdapter.selectAll();
+                watchlistAdapter.deleteSelectedStocks();
+                watchlistAdapter.notifyDataSetChanged();
+
+                updateNoStocks();
+                return true;
             default:
                 return super.onOptionsItemSelected(item);
         }
@@ -146,77 +197,178 @@ public class WatchlistFragment extends Fragment {
     @Override
     public void onPause() {
         super.onPause();
-        //TODO implement saving of watchlist to storage
-        saveData();
+
+        //Save the latest data
+        refreshData();
+
+        //Deselect any stocks
+        deselectAll();
+        watchlistAdapter.deselectAll();
+
+        //Disable action mode
+        enableActionMode(-1);
     }
 
-    private void saveData() {
-        SharedPreferences sharedPreferences = getActivity().getSharedPreferences("SharedPref", MODE_PRIVATE);
+    private void enableActionMode(int position) {
+        Log.w("ActionMode", "enableActionMode: " + position);
+
+        if (actionMode == null) {
+            actionMode = getActivity().startActionMode(new android.view.ActionMode.Callback() {
+                @Override
+                public boolean onCreateActionMode(android.view.ActionMode mode, Menu menu) {
+                    mode.getMenuInflater().inflate(R.menu.watchlist_menu_select, menu);
+                    return true;
+                }
+
+                @Override
+                public boolean onPrepareActionMode(android.view.ActionMode mode, Menu menu) {
+                    return false;
+                }
+
+                @Override
+                public boolean onActionItemClicked(android.view.ActionMode mode, MenuItem item) {
+                    Log.w("ActionMode", "enableActionMode: onActionItemClicked item: " + item);
+
+                    if (item.getItemId() == R.id.menu_delete) {
+                        //Go through the stocks. Delete selected from database
+//                        for (Stock stock : watchlist) {
+//                            if (stock.isSelected()) {
+//                                watchlist.remove(stock);
+//                                refreshData();
+//                                watchlistAdapter.notifyDataSetChanged();
+//                            }
+//                        }
+
+                        //Remove selected stocks
+                        for (Iterator<Stock> iterator = watchlist.iterator(); iterator.hasNext(); ) {
+                            Stock temp = iterator.next();
+                            if (temp.isSelected()) {
+                                iterator.remove();
+                            }
+                        }
+
+                        refreshData();
+
+
+                        //Delete selected stocks from the adapter
+                        watchlistAdapter.deleteSelectedStocks();
+
+                        //Reset the stock objects so they are false
+                        watchlistAdapter.deselectAll();
+
+                        //Refresh the view
+                        watchlistAdapter.notifyDataSetChanged();
+
+                        //Show the no stocks text if all stocks removed
+                        updateNoStocks();
+
+                        mode.finish();
+                        return true;
+                    }
+
+                    return false;
+                }
+
+                @Override
+                public void onDestroyActionMode(android.view.ActionMode mode) {
+                    //Make sure all stocks are deselected
+                    if ((watchlistAdapter.getSelectedSize() != 0))
+                        watchlistAdapter.deselectAll();
+
+                    //destroy the actionMode
+                    actionMode = null;
+                }
+            });
+        }
+
+        //Set the dynamic title
+        final int size = watchlistAdapter.getSelectedSize();
+        if (size == 0) {
+            actionMode.finish();
+        } else {
+            actionMode.setTitle(size + "");
+            actionMode.invalidate();
+        }
+    }
+
+    private void updateNoStocks() {
+        if (watchlist.size() == 0) {
+            textViewEmptyList.setVisibility(View.VISIBLE);
+        } else {
+            textViewEmptyList.setVisibility(View.GONE);
+        }
+    }
+
+    public void toggleSelection(Stock stock) {
+        if (stock.isSelected()) {
+            stock.setSelected(false);
+        } else {
+            stock.setSelected(true);
+        }
+    }
+
+    public void deselectAll() {
+        if (watchlist.size() > 0) {
+            for (int i = 0; i < watchlist.size(); i++) {
+                watchlist.get(i).setSelected(false);
+            }
+        }
+    }
+
+    public void selectAll() {
+        if (watchlist.size() > 0) {
+            for (int i = 0; i < watchlist.size(); i++) {
+                watchlist.get(i).setSelected(true);
+            }
+        }
+    }
+
+    public void saveData() {
+        SharedPreferences sharedPreferences = getContext().getSharedPreferences("SharedPref", MODE_PRIVATE);
         SharedPreferences.Editor editor = sharedPreferences.edit();
 
+        Gson gson = new Gson();
+
+        String json = gson.toJson(watchlist);
+        editor.putString("watchlist", json);
+
         for (int i = 0; i < watchlist.size(); i++) {
-            editor.putString(watchlist.get(i).getSymbol(), watchlist.get(i).getSymbol());
+            Log.i("SAVEDATA", watchlist.get(i).getSymbol());
         }
 
         editor.apply();
     }
 
-    private void retrieveStockQuery(String query) {
-        new Thread(new Runnable() {
-            HttpURLConnection connection = null;
+    public void loadData() {
+        SharedPreferences sharedPreferences = getContext().getSharedPreferences("SharedPref", MODE_PRIVATE);
 
-            @Override
-            public void run() {
-                boolean retrieved = false;
+        Gson gson = new Gson();
 
-                for (int i = 0; i < 12; i++) {
-                    if (!retrieved) {
-                        try {
-                            String key = getResources().getString(R.string.alphaVantage);
-                            String url = "https://www.alphavantage.co/query?function=SYMBOL_SEARCH&keywords=" + query + "&symbol=" + query + "&apikey=" + key;
-                            System.out.println("URL: " + url);
-                            String furl = url + URLEncoder.encode(query, "UTF-8");
-                            URL httpQuery = new URL(furl);
+        String json = sharedPreferences.getString("watchlist", null);
 
-                            connection = (HttpURLConnection) httpQuery.openConnection();
-                            int response = connection.getResponseCode();
+        Type type = new TypeToken<ArrayList<Stock>>() {
+        }.getType();
 
-                            if (response == HttpURLConnection.HTTP_OK) {
-                                StringBuilder builder = new StringBuilder();
+        watchlist = gson.fromJson(json, type);
 
-                                try (BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getInputStream()))) {
-                                    String line;
-                                    while ((line = reader.readLine()) != null) {
-                                        builder.append(line);
-                                    }
-                                } catch (IOException e) {
-                                    e.printStackTrace();
-                                    Toast.makeText(getContext(), "Unable to read data", Toast.LENGTH_SHORT).show();
-                                }
+        if (watchlist == null) {
+            watchlist = new ArrayList<>();
+        }
+    }
 
-                                jsonSearch = new JSONObject(builder.toString());
-                                retrieved = true;
+    public void clearData() {
+        watchlist.clear();
+    }
 
-                                //this.notify(); //Allow the main thread to continue
+    public void removeData() {
+        SharedPreferences sharedPreferences = getContext().getSharedPreferences("SharedPref", MODE_PRIVATE);
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.clear();
+        editor.apply();
+    }
 
-                                Log.i("JSONSearch", String.valueOf(jsonSearch));
-                            } else {
-                                Toast.makeText(getContext(), "Could not connect to the API", Toast.LENGTH_SHORT).show();
-                            }
-                        } catch (Exception e) {
-                            e.printStackTrace();
-
-                            try {
-                                Thread.sleep(5000);
-                            } catch (InterruptedException interruptedException) {
-                                interruptedException.printStackTrace();
-                            }
-                        } finally {
-                            connection.disconnect();
-                        }
-                    }
-                }
-            }
-        }).start();
+    public void refreshData() {
+        removeData();
+        saveData();
     }
 }

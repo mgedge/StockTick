@@ -13,7 +13,7 @@
         android:title="Watchlist" />
     <item
         android:id="@+id/navigation_search"
-        android:icon="@drawable/ic_baseline_search_24"
-        android:title="Search Stocks" />
+        android:icon="@drawable/ic_baseline_article_24"
+        android:title="News Search" />
 
 </menu>

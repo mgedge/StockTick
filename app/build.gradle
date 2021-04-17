@@ -9,6 +9,7 @@ if(rootProject.file("local.properties").exists()) {
 }
 def alphaVantage = properties.getProperty("alphaVantage","")
 def newsAPI = properties.getProperty("newsAPI","")
+def fmp =       properties.getProperty("fmp", "")
 
 
 android {
@@ -21,7 +22,7 @@ android {
         targetSdkVersion 30
         versionCode 1
         versionName "1.0"
-
+        multiDexEnabled true
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
 
@@ -29,6 +30,7 @@ android {
         debug {
             resValue("string", "alphaVantage", properties['alphaVantage'])
             resValue("string", "newsAPI", properties['newsAPI'])
+            resValue("string", "fmp", properties['fmp'])
         }
         release {
             minifyEnabled false
@@ -43,6 +45,8 @@ android {
 
 repositories {
     maven { url 'https://jitpack.io' }
+    google()
+    mavenCentral()
 
 }
 
@@ -54,7 +58,9 @@ dependencies {
     implementation 'com.github.KwabenBerko:News-API-Java:1.0.0' //NewsAPI
     implementation 'com.github.KwabenBerko:News-API-Java:1.0.0'
 
-
+    //For loading pictures
+    implementation 'com.github.bumptech.glide:glide:4.12.0'
+    annotationProcessor 'com.github.bumptech.glide:compiler:4.12.0'
 
     //Standard
     implementation 'androidx.appcompat:appcompat:1.2.0'

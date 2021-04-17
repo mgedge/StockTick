@@ -1,26 +1,36 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="purple_200">#FFBB86FC</color>
-    <color name="purple_500">#FF6200EE</color>
-    <color name="purple_700">#FF3700B3</color>
-    <color name="teal_200">#FF03DAC5</color>
-    <color name="teal_700">#FF018786</color>
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
 
-
-
     <color name="colorPrimary">#25AF65</color>
     <color name="colorPrimaryDark">#128e4e</color>
+    <color name="colorPrimaryDarkest">#005d30</color>
     <color name="colorPrimaryLight">#c2e6cf</color>
 
-    <color name="colorAccent">#f0ce34</color>
-    <color name="colorAccentDark">#cba82a</color>
-    <color name="colorAccentLight">#fdefc0</color>
+    <color name="colorAccent">#0094ff</color>
+    <color name="colorAccentDark">#0072ff</color>
+    <color name="colorAccentLight">#87cbff</color>
+
+    <!--    <color name="colorAccent">#f0ce34</color>-->
+    <!--    <color name="colorAccentDark">#cba82a</color>-->
+    <!--    <color name="colorAccentLight">#fdefc0</color>-->
 
     <color name="colorPositive">#5DDA5D</color>
     <color name="colorNegative">#E84A4A</color>
 
-    <color name="colorStockChartGradient">#5DD0DA</color>
+    <!--    <color name="colorStockChartGradient">#5DD0DA</color>-->
+    <color name="colorStockChartGradient">#87cbff</color>
 
+    <color name="shadow">#363636</color>
+    <color name="darkShadow">#3C3F41</color>
+    <color name="cardGray">#919191</color>
+    <!--    <color name="cardGray">#6A6C6E</color>-->
+    <color name="red">#FF0000</color>
+    <color name="cardBackgroundDark">#FF424242</color>
+    <color name="cardBackgroundLight">#FFFFFFFF</color>
+
+    <color name="textColorDark">#deffffff</color>
+    <color name="textColorLight">#FF000000</color>
+    <color name="textColorGray">#FF000000</color>
 </resources>
