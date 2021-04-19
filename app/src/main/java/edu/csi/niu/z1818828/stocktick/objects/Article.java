@@ -6,6 +6,14 @@ public class Article {
     String url;
     String imageUrl;
 
+    /**
+     * Create an article object which has a title, news source, and two article related links
+     *
+     * @param title    - string for the title of the article
+     * @param source   - string for the source of the article
+     * @param url      - string for the url to the article
+     * @param imageUrl - string for the url of the image in article
+     */
     public Article(String title, String source, String url, String imageUrl) {
         this.title = title;
         this.source = source;

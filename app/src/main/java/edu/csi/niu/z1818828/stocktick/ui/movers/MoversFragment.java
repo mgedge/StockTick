@@ -13,7 +13,6 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
-import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -22,19 +21,15 @@ import com.google.gson.reflect.TypeToken;
 
 import org.jetbrains.annotations.NotNull;
 import org.json.JSONArray;
-import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.lang.reflect.Array;
 import java.lang.reflect.Type;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.net.URLEncoder;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 
 import edu.csi.niu.z1818828.stocktick.R;
@@ -53,10 +48,9 @@ public class MoversFragment extends Fragment {
     StockAdapter stockAdapterWinners;
     StockAdapter stockAdapterLosers;
 
+    //The json values returned by api
     JSONArray jsonWinners;
     JSONArray jsonLosers;
-
-    private MoversViewModel moversViewModel;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -67,7 +61,6 @@ public class MoversFragment extends Fragment {
     }
 
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        moversViewModel = new ViewModelProvider(this).get(MoversViewModel.class);
         View root = inflater.inflate(R.layout.fragment_movers, container, false);
 
         recyclerViewWinners = root.findViewById(R.id.recyclerViewWinners);
@@ -82,7 +75,6 @@ public class MoversFragment extends Fragment {
         stockAdapterWinners.notifyDataSetChanged();
         stockAdapterLosers.notifyDataSetChanged();
 
-
         return root;
     }
 
@@ -92,18 +84,22 @@ public class MoversFragment extends Fragment {
 
         //loadData();
 
+        //Start a thread to retrieve the data (this improves the performance of the fragment)
         new Thread(new Runnable() {
             @Override
             public void run() {
-                retrieveData();
+//                retrieveData();
+                retrieveDataWinner();
+                retrieveDataLoser();
             }
         }).start();
 
-//        saveData();
-
-
+        //saveData();
     }
 
+    /**
+     * Retrieve the data from the
+     */
     private void retrieveData() {
         boolean bParsedWinner = false;
         boolean bParsedLoser = false;
@@ -112,7 +108,7 @@ public class MoversFragment extends Fragment {
         retrieveWinners();
         retrieveLosers();
 
-        //Parse the results
+        //Parse the results, waiting 3 seconds max for results
         for (int i = 0; i < 3; i++) {
             if (jsonWinners == null) {
                 try {
@@ -145,13 +141,16 @@ public class MoversFragment extends Fragment {
         }
     }
 
+    /**
+     * retrieve and parse the winner data
+     */
     private void retrieveDataWinner() {
         boolean bParsedWinner = false;
 
         //Retrieve the data from api
         retrieveWinners();
 
-        //Parse the results
+        //Parse the results, waiting 3 seconds max for results
         for (int i = 0; i < 3; i++) {
             if (jsonWinners == null) {
                 try {
@@ -163,18 +162,24 @@ public class MoversFragment extends Fragment {
                 if (!bParsedWinner) {
                     parseWinner();
                     bParsedWinner = true;
+                    return;
                 }
             }
         }
+
+        //If reached, data failed to be retrieved
     }
 
+    /**
+     * retrieve and parse the loser data
+     */
     private void retrieveDataLoser() {
         boolean bParsedLoser = false;
 
         //Retrieve the data from api
         retrieveLosers();
 
-        //Parse the results
+        //Parse the results, waiting 3 seconds max for results
         for (int i = 0; i < 3; i++) {
             if (jsonLosers == null) {
                 try {
@@ -186,44 +191,64 @@ public class MoversFragment extends Fragment {
                 if (!bParsedLoser) {
                     parseLoser();
                     bParsedLoser = true;
+                    return;
                 }
             }
         }
     }
 
 
+    /**
+     * Go through the results retrieved from the api
+     */
     private void parseWinner() {
         try {
             JSONArray item = jsonWinners;
             int numItems;
 
+            //Determine the number of items to display
             if (item.length() < 5) {
                 numItems = item.length();
             } else {
                 numItems = 5;
             }
 
+            //Iterate through the number of items to display and set their values
             for (int i = 0; i < numItems; i++) {
                 JSONObject obj = item.getJSONObject(i);
 
-                Stock stock = new Stock();
-                stock.setSymbol(obj.getString("ticker"));
-                stock.setStockName(obj.getString("companyName"));
-                stock.setChange(Double.parseDouble(obj.getString("changes")));
-                stock.setPrice(Double.parseDouble(obj.getString("price")));
-
+                //Remove extra characters from the percentage
                 String temp = obj.getString("changesPercentage");
-                temp = temp.replace('(', ' ');
-                temp = temp.replace('%', ' ');
-                temp = temp.replace(')', ' ');
-                temp = temp.replace('+', ' ');
-                temp = temp.replace('-', ' ');
-                temp = temp.trim();
+                try {
+                    temp = temp.replace('(', ' ');
+                    temp = temp.replace('%', ' ');
+                    temp = temp.replace(')', ' ');
+                    temp = temp.replace('+', ' ');
+                    temp = temp.replace('-', ' ');
+                    temp = temp.trim();
+                } catch (Exception e) {
+                    //If it somehow fails, return the original
+                    temp = obj.getString("changesPercentage");
+                    e.printStackTrace();
+                }
 
-                stock.setChangePct(Double.parseDouble(temp));
+                //Create a stock and set the values
+                Stock stock = new Stock();
+                try {
+                    stock.setSymbol(obj.getString("ticker"));
+                    stock.setStockName(obj.getString("companyName"));
+                    stock.setChange(Double.parseDouble(obj.getString("changes")));
+                    stock.setPrice(Double.parseDouble(obj.getString("price")));
+                    stock.setChangePct(Double.parseDouble(temp));
+                } catch (Exception e) {
+                    //If something fails, print
+                    e.printStackTrace();
+                }
 
+                //Add to the list, the new stock
                 winners.add(stock);
 
+                //Start a UI thread to update the UI
                 new Handler(Looper.getMainLooper()).post(new Runnable() {
                     @Override
                     public void run() {
@@ -232,41 +257,61 @@ public class MoversFragment extends Fragment {
                 });
             }
         } catch (Exception e) {
+            //If anything fails, print
             e.printStackTrace();
         }
     }
 
+    /**
+     * Go through the results retrieved from the api
+     */
     private void parseLoser() {
         try {
             JSONArray item = jsonLosers;
             int numItems;
 
+            //Determine the number of items to display
             if (item.length() < 5) {
                 numItems = item.length();
             } else {
                 numItems = 5;
             }
 
+            //Iterate through the number of items to display and set their values
             for (int i = 0; i < numItems; i++) {
                 JSONObject obj = item.getJSONObject(i);
 
-                Stock stock = new Stock();
-                stock.setSymbol(obj.getString("ticker"));
-                stock.setStockName(obj.getString("companyName"));
-                stock.setChange(Double.parseDouble(obj.getString("changes")));
-                stock.setPrice(Double.parseDouble(obj.getString("price")));
-
+                //Remove extra characters from the percentage
                 String temp = obj.getString("changesPercentage");
-                temp = temp.replace('(', ' ');
-                temp = temp.replace('%', ' ');
-                temp = temp.replace(')', ' ');
-                temp = temp.replace('+', ' ');
-                temp = temp.trim();
+                try {
+                    temp = temp.replace('(', ' ');
+                    temp = temp.replace('%', ' ');
+                    temp = temp.replace(')', ' ');
+                    temp = temp.replace('+', ' ');
+                    temp = temp.trim();
+                } catch (Exception e) {
+                    //If it somehow fails, return the original
+                    temp = obj.getString("changesPercentage");
+                    e.printStackTrace();
+                }
 
-                stock.setChangePct(Double.parseDouble(temp));
+                //Create a stock and set the values
+                Stock stock = new Stock();
+                try {
+                    stock.setSymbol(obj.getString("ticker"));
+                    stock.setStockName(obj.getString("companyName"));
+                    stock.setChange(Double.parseDouble(obj.getString("changes")));
+                    stock.setPrice(Double.parseDouble(obj.getString("price")));
+                    stock.setChangePct(Double.parseDouble(temp));
+                } catch (Exception e) {
+                    //If something fails, print
+                    e.printStackTrace();
+                }
 
+                //Add the new stock to the losers list
                 losers.add(stock);
 
+                //Start a UI thread to update the adapter
                 new Handler(Looper.getMainLooper()).post(new Runnable() {
                     @Override
                     public void run() {
@@ -275,17 +320,21 @@ public class MoversFragment extends Fragment {
                 });
             }
         } catch (Exception e) {
+            //If anything fails, print
             e.printStackTrace();
         }
     }
 
+    /**
+     * Generate the URL for the FMP api
+     *
+     * @return the URL to retrieve the winner data from
+     */
     private URL generateWinnerUrl() {
         String key = getContext().getResources().getString(R.string.fmp);
 
         try {
             String url = "https://financialmodelingprep.com/api/v3/gainers?apikey=" + key;
-            System.out.println("URL: " + url);
-
             return new URL(url);
         } catch (Exception e) {
             e.printStackTrace();
@@ -293,13 +342,16 @@ public class MoversFragment extends Fragment {
         }
     }
 
+    /**
+     * Generate the URL for the FMP api
+     *
+     * @return the URL to retrieve the loser data from
+     */
     private URL generateLoserUrl() {
         String key = getResources().getString(R.string.fmp);
 
         try {
             String url = "https://financialmodelingprep.com/api/v3/losers?apikey=" + key;
-            System.out.println("URL: " + url);
-
             return new URL(url);
         } catch (Exception e) {
             e.printStackTrace();
@@ -307,7 +359,11 @@ public class MoversFragment extends Fragment {
         }
     }
 
+    /**
+     * Retrieve the winners from the API and set the JSON jsonWinners array
+     */
     private void retrieveWinners() {
+        //Start a thread and do this in the background
         new Thread(new Runnable() {
             HttpURLConnection connection = null;
 
@@ -315,15 +371,20 @@ public class MoversFragment extends Fragment {
             public void run() {
                 boolean retrieved = false;
 
+                //Try every 5 seconds for a minute
                 for (int i = 0; i < 12; i++) {
+                    //If the information has not been retrieved, keep trying
                     if (!retrieved) {
                         try {
+                            //Create the connection
                             connection = (HttpURLConnection) generateWinnerUrl().openConnection();
                             int response = connection.getResponseCode();
 
+                            //If connected
                             if (response == HttpURLConnection.HTTP_OK) {
                                 StringBuilder builder = new StringBuilder();
 
+                                //Attempt to read the response
                                 try (BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getInputStream()))) {
                                     String line;
                                     while ((line = reader.readLine()) != null) {
@@ -334,11 +395,11 @@ public class MoversFragment extends Fragment {
                                     Toast.makeText(getContext(), "Unable to read data", Toast.LENGTH_SHORT).show();
                                 }
 
+                                //Set the json array
                                 jsonWinners = new JSONArray(builder.toString());
                                 retrieved = true;
 
-                                //this.notify(); //Allow the main thread to continue
-
+                                //Log what was retrieved
                                 Log.i("JSONWinners", String.valueOf(jsonWinners));
                             } else {
                                 Toast.makeText(getContext(), "Could not connect to the API", Toast.LENGTH_SHORT).show();
@@ -346,13 +407,19 @@ public class MoversFragment extends Fragment {
                         } catch (Exception e) {
                             e.printStackTrace();
 
+                            //Wait 5 seconds before trying again
                             try {
                                 Thread.sleep(5000);
                             } catch (InterruptedException interruptedException) {
                                 interruptedException.printStackTrace();
                             }
                         } finally {
-                            connection.disconnect();
+                            //Disconnect from api
+                            try {
+                                connection.disconnect();
+                            } catch (Exception e) {
+                                e.printStackTrace();
+                            }
                         }
                     }
                 }
@@ -360,7 +427,11 @@ public class MoversFragment extends Fragment {
         }).start();
     }
 
+    /**
+     * Retrieve the losers from the API and set the JSON jsonLosers array
+     */
     private void retrieveLosers() {
+        //Start a thread and do this in the background
         new Thread(new Runnable() {
             HttpURLConnection connection = null;
 
@@ -368,15 +439,20 @@ public class MoversFragment extends Fragment {
             public void run() {
                 boolean retrieved = false;
 
+                //Try every 5 seconds for a minute
                 for (int i = 0; i < 12; i++) {
+                    //If the information has not been retrieved, keep trying
                     if (!retrieved) {
                         try {
+                            //Create the connection
                             connection = (HttpURLConnection) generateLoserUrl().openConnection();
                             int response = connection.getResponseCode();
 
+                            //If connected
                             if (response == HttpURLConnection.HTTP_OK) {
                                 StringBuilder builder = new StringBuilder();
 
+                                //Attempt to read the response
                                 try (BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getInputStream()))) {
                                     String line;
                                     while ((line = reader.readLine()) != null) {
@@ -387,11 +463,11 @@ public class MoversFragment extends Fragment {
                                     Toast.makeText(getContext(), "Unable to read data", Toast.LENGTH_SHORT).show();
                                 }
 
+                                //Set the json array
                                 jsonLosers = new JSONArray(builder.toString());
                                 retrieved = true;
 
-                                //this.notify(); //Allow the main thread to continue
-
+                                //Log what was retrieved
                                 Log.i("JSONLosers", String.valueOf(jsonLosers));
                             } else {
                                 Toast.makeText(getContext(), "Could not connect to the API", Toast.LENGTH_SHORT).show();
@@ -399,13 +475,19 @@ public class MoversFragment extends Fragment {
                         } catch (Exception e) {
                             e.printStackTrace();
 
+                            //Wait 5 seconds before trying again
                             try {
                                 Thread.sleep(5000);
                             } catch (InterruptedException interruptedException) {
                                 interruptedException.printStackTrace();
                             }
                         } finally {
-                            connection.disconnect();
+                            //Disconnect from api
+                            try {
+                                connection.disconnect();
+                            } catch (Exception e) {
+                                e.printStackTrace();
+                            }
                         }
                     }
                 }
@@ -413,6 +495,9 @@ public class MoversFragment extends Fragment {
         }).start();
     }
 
+    /**
+     * Save the winners and losers to shared preferences
+     */
     public void saveData() {
         SharedPreferences sharedPreferences = getContext().getSharedPreferences("SharedPref", MODE_PRIVATE);
         SharedPreferences.Editor editor = sharedPreferences.edit();
@@ -428,6 +513,9 @@ public class MoversFragment extends Fragment {
         editor.apply();
     }
 
+    /**
+     * Load the winners and losers to shared preferences
+     */
     public void loadData() {
         SharedPreferences sharedPreferences = getContext().getSharedPreferences("SharedPref", MODE_PRIVATE);
 
@@ -450,10 +538,10 @@ public class MoversFragment extends Fragment {
         }
     }
 
-    public void clearData(@NotNull ArrayList<?> list) {
-        list.clear();
-    }
 
+    /**
+     * Remove the winners and losers from shared preferences
+     */
     public void removeData() {
         SharedPreferences sharedPreferences = getContext().getSharedPreferences("SharedPref", MODE_PRIVATE);
         SharedPreferences.Editor editor = sharedPreferences.edit();
@@ -462,6 +550,9 @@ public class MoversFragment extends Fragment {
         editor.apply();
     }
 
+    /**
+     * Remove the winners and losers from shared preferences, then save the new ones
+     */
     public void refreshData() {
         removeData();
         saveData();

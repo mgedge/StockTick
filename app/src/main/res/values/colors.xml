@@ -5,28 +5,24 @@
 
     <color name="colorPrimary">#25AF65</color>
     <color name="colorPrimaryDark">#128e4e</color>
-    <color name="colorPrimaryDarkest">#005d30</color>
-    <color name="colorPrimaryLight">#c2e6cf</color>
+    <color name="colorPrimaryLight">#9ad6b1</color>
 
     <color name="colorAccent">#0094ff</color>
     <color name="colorAccentDark">#0072ff</color>
     <color name="colorAccentLight">#87cbff</color>
 
-    <!--    <color name="colorAccent">#f0ce34</color>-->
-    <!--    <color name="colorAccentDark">#cba82a</color>-->
-    <!--    <color name="colorAccentLight">#fdefc0</color>-->
-
     <color name="colorPositive">#5DDA5D</color>
     <color name="colorNegative">#E84A4A</color>
 
-    <!--    <color name="colorStockChartGradient">#5DD0DA</color>-->
+    <color name="pink">#ED3BBA</color>
+
     <color name="colorStockChartGradient">#87cbff</color>
 
-    <color name="shadow">#363636</color>
-    <color name="darkShadow">#3C3F41</color>
+    <color name="darkBackground">#272727</color>
+    <color name="darkNavBar">#131313</color>
+    <!--    <color name="darkBackground">#C3D13AD6</color>-->
+
     <color name="cardGray">#919191</color>
-    <!--    <color name="cardGray">#6A6C6E</color>-->
-    <color name="red">#FF0000</color>
     <color name="cardBackgroundDark">#FF424242</color>
     <color name="cardBackgroundLight">#FFFFFFFF</color>
 

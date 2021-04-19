@@ -6,14 +6,11 @@
         android:layout_height="match_parent"
         android:descendantFocusability="blocksDescendants">
 
-        <!--        <androidx.cardview.widget.CardView-->
-        <!--            android:layout_width="1dp"-->
-        <!--            android:layout_height="1dp" />-->
-
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             tools:context=".ui.stock.StockActivity">
+
 
             <TextView
                 android:id="@+id/textViewLowTitle"
@@ -69,7 +66,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginStart="8dp"
                 android:layout_marginTop="8dp"
-                android:text="--,---.--"
+                android:text="-----"
                 android:textSize="32sp"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />

@@ -19,12 +19,11 @@ import edu.csi.niu.z1818828.stocktick.R;
 import edu.csi.niu.z1818828.stocktick.objects.Stock;
 
 public class WatchlistAdapter extends RecyclerView.Adapter<WatchlistAdapter.ViewHolder> {
-    private List<Stock> stocks;
-    private LayoutInflater inflater;
+    private final List<Stock> stocks;
+    private final LayoutInflater inflater;
+    private final SparseBooleanArray selectedItems = new SparseBooleanArray();
+    private final Context context;
     private OnStockClickListener clickListener;
-    private SparseBooleanArray selectedItems = new SparseBooleanArray();
-    private Context context;
-
     public boolean bSelectionGroup = false;
 
     public void setListener(OnStockClickListener clickListener) {
@@ -52,8 +51,10 @@ public class WatchlistAdapter extends RecyclerView.Adapter<WatchlistAdapter.View
 
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
+        //Get the stock
         Stock stock = stocks.get(position);
 
+        //Set the texts
         holder.textViewSymbol.setText(stock.getSymbol());
         holder.textViewExchange.setText(stock.getExchange());
         holder.textViewStockName.setText(stock.getStockName());
@@ -73,6 +74,7 @@ public class WatchlistAdapter extends RecyclerView.Adapter<WatchlistAdapter.View
         if (stock.isSelected()) {
             holder.itemView.setBackgroundColor(context.getResources().getColor(R.color.colorAccentLight));
         } else {
+            //Check the UI mode to reset the color back to its default
             int nightMode = context.getResources().getConfiguration().uiMode & Configuration.UI_MODE_NIGHT_MASK;
             switch (nightMode) {
                 case Configuration.UI_MODE_NIGHT_YES:
@@ -92,12 +94,13 @@ public class WatchlistAdapter extends RecyclerView.Adapter<WatchlistAdapter.View
 
         //Listener for card long click
         holder.itemView.setOnLongClickListener(v -> {
-            Log.d("Adapter", "onLongClick: pressed: " + position + " selected: " + stock.isSelected() + " sparseBool: " + selectedItems.get(position));
-
+            //Toggle the card
             toggleSelection(position);
 
+            //Update the UI
             notifyDataSetChanged();
 
+            //Set the listener
             if (clickListener != null) {
                 clickListener.onStockLongClick(position);
             }
@@ -123,12 +126,15 @@ public class WatchlistAdapter extends RecyclerView.Adapter<WatchlistAdapter.View
         public ViewHolder(@NonNull View itemView, OnStockClickListener listener) {
             super(itemView);
 
+            //Bind the views
             textViewSymbol = itemView.findViewById(R.id.textViewNewsTitle);
             textViewExchange = itemView.findViewById(R.id.textViewSource);
             textViewStockName = itemView.findViewById(R.id.textViewStockName);
             textViewPercentChange = itemView.findViewById(R.id.textViewPercentChange);
             textViewPrice = itemView.findViewById(R.id.textViewPrice);
             textViewDate = itemView.findViewById(R.id.textViewChange);
+
+            //Create the listener
             this.clickListener = listener;
             itemView.setOnClickListener(this);
         }

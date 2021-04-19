@@ -1,11 +1,11 @@
 package edu.csi.niu.z1818828.stocktick.objects;
 
 import android.util.Log;
-import android.widget.Toast;
 
 import java.text.DecimalFormat;
 import java.time.LocalDate;
 import java.util.Scanner;
+import java.lang.String;
 
 public class Stock {
     String symbol;
@@ -14,9 +14,6 @@ public class Stock {
     String date;
     double price;
     double openPrice;
-    //    double closePrice;
-//    double weekHigh;
-//    double weekLow;
     double dayHigh;
     double dayLow;
     double volume;
@@ -24,21 +21,18 @@ public class Stock {
     double changePct;
     boolean selected = false;
 
+    /**
+     * Create an empty stock object.
+     * A stock has many properties and may or may not have all the properties available.
+     */
     public Stock() {
     }
 
-    public Stock(String symbol, String stockName, String exchange, double price, double openPrice, double closePrice,
-                 double weekHigh, double weekLow, double dayHigh, double dayLow, double volume, double range) {
-        this.symbol = symbol;
-        this.stockName = stockName;
-        this.exchange = exchange;
-        this.price = price;
-        this.openPrice = openPrice;
-        this.dayHigh = dayHigh;
-        this.dayLow = dayLow;
-        this.volume = volume;
-    }
-
+    /**
+     * Format the volume such that it is (ideally) 3 digits with a character to denote the scale.
+     *
+     * @return a string for the formatted volume
+     */
     public String prettifyVolume() {
         DecimalFormat decimalFormat = new DecimalFormat("#,###.00");
 
@@ -54,21 +48,43 @@ public class Stock {
             return decimalFormat.format(volume);
     }
 
+    /**
+     * Format the input value such that it is (ideally) 3 digits with a character to denote the scale.
+     * This is used for the volume chart
+     *
+     * @param label - float value for the volume
+     * @return a string for the formatted volume
+     */
     public String prettifyVolumeLabel(float label) {
         DecimalFormat decimalFormat = new DecimalFormat("#,###");
+        String item;
 
         if (label < 1000)
-            return decimalFormat.format(label);
+            item = decimalFormat.format(label);
         else if (label < 1000000)
-            return decimalFormat.format(label / 1000) + "K";
+            item = decimalFormat.format(label / 1000) + "K";
         else if (label < 1000000000)
-            return decimalFormat.format(label / 1000000) + "M";
+            item = decimalFormat.format(label / 1000000) + "M";
         else if (label >= 1000000000)
-            return decimalFormat.format(label / 1000000000) + "B";
+            item = decimalFormat.format(label / 1000000000) + "B";
         else
-            return decimalFormat.format(label);
+            item = decimalFormat.format(label);
+
+        for (int i = 0; i < 6; i++) {
+            if (item.length() != 6) {
+                item += " ";
+            }
+        }
+
+        return item;
     }
 
+    /**
+     * Format the date to have the day of the week and date (eg. Sunday, 1/1/2000)
+     *
+     * @param date - date as a string formatted as (yyyy-mm-dd)
+     * @return a string with the new format
+     */
     public String formatDateDay(String date) {
         if (date != null) {
             String year, month, day;
@@ -93,6 +109,12 @@ public class Stock {
         }
     }
 
+    /**
+     * Format the date without the year or day
+     *
+     * @param date - string for the date (yyyy-mm-dd)
+     * @return a string with format (mm/dd)
+     */
     public String formatDate(String date) {
         String year, month, day;
         Scanner scanner = new Scanner(date);
@@ -105,16 +127,35 @@ public class Stock {
         return month + "/" + day;
     }
 
+    /**
+     * Format the price to have two decimal decimal places
+     *
+     * @param price - the price as a double
+     * @return a string with the formatted price (e.g. 1,000.00)
+     */
     public String formatPrice(double price) {
         DecimalFormat decimalFormat = new DecimalFormat("#,##0.00");
         return decimalFormat.format(price);
     }
 
+    /**
+     * Format the label for the price chart
+     *
+     * @param price - float value for the price to be formatted
+     * @return a string for the formatted price
+     */
     public String formatPriceLabel(float price) {
         DecimalFormat decimalFormat = new DecimalFormat("##,###");
         String item;
 
         item = decimalFormat.format(price);
+
+        for (int i = 0; i < 6; i++) {
+            if (item.length() != 6) {
+                item += " ";
+            }
+        }
+
 //        if(price < 0) {
 //            item = String.format("0.3f", price);
 //        }
@@ -123,14 +164,25 @@ public class Stock {
 ////            item = String.format("%4$f", price);
 //        }
 
-
         return item;
     }
 
+    /**
+     * Format the price change
+     *
+     * @param _change - the change value to be formatted
+     * @return a string for the formatted change
+     */
     public String formatChange(double _change) {
         return new DecimalFormat("#,###.##").format(_change);
     }
 
+    /**
+     * Format the price change as a percentage
+     *
+     * @param _change - the change percentage value to be formatted
+     * @return a string for the formatted change percentage
+     */
     public String formatChangePercentage(double _change) {
         DecimalFormat format = new DecimalFormat("#,##0.00");
         return format.format(_change) + "%";
@@ -224,13 +276,13 @@ public class Stock {
         this.changePct = changePct;
     }
 
-    //Adapter methods
-    public void setSelected(boolean selected) {
-        this.selected = selected;
-    }
-
+    //Adapter methods - used to determine if the stock is selected in the list
     public boolean isSelected() {
         return selected;
+    }
+
+    public void setSelected(boolean selected) {
+        this.selected = selected;
     }
 }
 
