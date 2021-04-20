@@ -1,3 +1,12 @@
+/************************************************************************
+ * 	File Name: MainActivity.java					    				*
+ * 																		*
+ *  Developer: Matthew Gedge											*
+ *   																	*
+ *    Purpose: This java class runs the Main activity. This file is only*
+ *    used to drive the fragments and to start the application.         *
+ *																		*
+ * *********************************************************************/
 package edu.csi.niu.z1818828.stocktick;
 
 import android.content.SharedPreferences;

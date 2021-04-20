@@ -1,3 +1,22 @@
+/************************************************************************
+ * 	File Name: StockActivity.java					    				*
+ * 																		*
+ *  Developer: Matthew Gedge											*
+ *   																	*
+ *    Purpose: This java class runs the Stock activity. This page is    *
+ *    where the user would likely spend most of their time. The activity*
+ *    first retrieves the stock ticker from the intent. It then calls   *
+ *    the AlphaVantage API to retrieve daily stock data for the past ~90*
+ *    days. Once parsed, MPAndroidChart library will take the data to   *
+ *    build the stock price and volume graphs. Lastly, the NewsAPI      *
+ *    client will retrieve news articles related to the stock ticker.   *
+ *    News articles may often times be completely unrelated to the stock*
+ *    due to the limited information provided by the AlphaVantage       *
+ *    search. Since the stock name is not provided, news articles will  *
+ *    related to the symbol, which is meaningless to the query. Most of *
+ *    the time, the news articles are relevant.                         *
+ *																		*
+ * *********************************************************************/
 package edu.csi.niu.z1818828.stocktick.ui.stock;
 
 import android.content.Context;
@@ -208,8 +227,6 @@ public class StockActivity extends AppCompatActivity {
                         }
                     }
 
-                    calculateChange();
-
                     //Get the news
                     retrieveNews();
 
@@ -226,6 +243,8 @@ public class StockActivity extends AppCompatActivity {
 
                             //Set the change
                             if (stock.getChange() < 0) {
+                                textViewDayChange.setText(stock.formatChange(stock.getChange()));
+                                textViewDayChangePercent.setText(stock.formatChangePercentage(stock.getChangePct()));
                                 textViewDayChange.setTextColor(getResources().getColor(colorNegative));
                                 textViewDayChangePercent.setTextColor(getResources().getColor(colorNegative));
                             } else {
@@ -348,7 +367,7 @@ public class StockActivity extends AppCompatActivity {
         retrieveStockData();
 
         //Wait for it to be retrieved
-        for (int i = 0; i < 15; i++) {
+        for (int i = 0; i < 20; i++) {
             if (jsonStockData == null) {
                 Thread.sleep(100);
             } else {
@@ -356,9 +375,6 @@ public class StockActivity extends AppCompatActivity {
                 parseJSONStockDataObject();
             }
         }
-
-        //Calculate the change
-        calculateChange();
     }
 
     /**
@@ -594,6 +610,7 @@ public class StockActivity extends AppCompatActivity {
                         lastClose = object.getString("2. high");
                         lastHigh = object.getString("3. low");
                         lastLow = object.getString("4. close");
+                        calculateChange();
                     }
 
                     counter++;

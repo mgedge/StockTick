@@ -1,3 +1,15 @@
+/************************************************************************
+ * 	File Name: MoversFragment.java										*
+ * 																		*
+ *  Developer: Matthew Gedge											*
+ *   																	*
+ *    Purpose: This java class runs the Movers fragment. This page will *
+ *    pull the top 5 winners and losers from the FinancialModelingPrep  *
+ *    API. This page displays two recycler views with stock cards for   *
+ *    its data. Clicking a stock will bring the user to the             *
+ *    StockActivity where more data will be presented                   *
+ *																		*
+ * *********************************************************************/
 package edu.csi.niu.z1818828.stocktick.ui.movers;
 
 import android.content.SharedPreferences;
@@ -152,6 +164,10 @@ public class MoversFragment extends Fragment {
                 case 3: //JSON object error
                     textViewStatus.setVisibility(View.VISIBLE);
                     textViewStatus.setText("JSON error, the stock does not exist");
+                    break;
+                case 4: //Forbidden (out of calls)
+                    textViewStatus.setVisibility(View.VISIBLE);
+                    textViewStatus.setText("250 call daily max reached");
                     break;
             }
         }
@@ -465,6 +481,9 @@ public class MoversFragment extends Fragment {
 
                                 //Log what was retrieved
                                 Log.i("JSONWinners", String.valueOf(jsonWinners));
+                            } else if (response == HttpURLConnection.HTTP_FORBIDDEN) {
+                                errorCode = 4;
+                                return;
                             }
                         } catch (Exception e) {
                             e.printStackTrace();

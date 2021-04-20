@@ -1,3 +1,12 @@
+/************************************************************************
+ * 	File Name: Stock.java			        		    				*
+ * 																		*
+ *  Developer: Matthew Gedge											*
+ *   																	*
+ *    Purpose: This java class defines a stock object and allows for    *
+ *    manipulation of the object variables.                             *
+ *																		*
+ * *********************************************************************/
 package edu.csi.niu.z1818828.stocktick.objects;
 
 import android.util.Log;
@@ -155,14 +164,6 @@ public class Stock {
                 item += " ";
             }
         }
-
-//        if(price < 0) {
-//            item = String.format("0.3f", price);
-//        }
-//        else {
-////            item = decimalFormat.format(price);
-////            item = String.format("%4$f", price);
-//        }
 
         return item;
     }

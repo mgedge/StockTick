@@ -1,3 +1,14 @@
+/************************************************************************
+ * 	File Name: StockAdapter.java    				    				*
+ * 																		*
+ *  Developer: Matthew Gedge											*
+ *   																	*
+ *    Purpose: This java class runs the adapter for the recycler views  *
+ *    on the movers fragment. This class is simpler than the watchlist  *
+ *    adapter since it only needs to bind the views and start the Stock *
+ *    activity when the user selects a card.                            *
+ *																		*
+ * *********************************************************************/
 package edu.csi.niu.z1818828.stocktick.adapters;
 
 import android.content.Context;

@@ -52,11 +52,9 @@ repositories {
 
 dependencies {
     //Additional
-    implementation("com.apollographql.apollo:apollo-runtime:2.5.5") //GraphQL
     implementation 'com.github.PhilJay:MPAndroidChart:v3.1.0'   //MPAndroidChart
     implementation 'com.github.crazzyghost:alphavantage-java:1.5.0' //Java implementation for alpha
     implementation 'com.github.KwabenBerko:News-API-Java:1.0.0' //NewsAPI
-    implementation 'com.github.KwabenBerko:News-API-Java:1.0.0'
 
     //For loading pictures
     implementation 'com.github.bumptech.glide:glide:4.12.0'

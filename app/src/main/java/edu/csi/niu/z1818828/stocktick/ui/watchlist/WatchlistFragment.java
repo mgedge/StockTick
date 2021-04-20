@@ -1,3 +1,21 @@
+/************************************************************************
+ * 	File Name: WatchlistFragment.java									*
+ * 																		*
+ *  Developer: Matthew Gedge											*
+ *   																	*
+ *    Purpose: This java class runs the Watchlist fragment. This is the *
+ *    main page where users can browse their watchlist and view stocks. *
+ *    Due to limitations with the API, stocks will not have up to date  *
+ *    information. Given the low call count per minute, it was best for *
+ *    this project to instead only retrieve information at the user's   *
+ *    request. Users can quickly delete multiple stocks at once, by     *
+ *    first long clicking a stock, which will highlight the stock and   *
+ *    enable an action menu. The user can then quick select stocks and  *
+ *    user the delete button to remove them. If the user deselects all  *
+ *    stocks, the action menu will disappear and the user may then      *
+ *    view stocks by clicking them as normal.                           *
+ *																		*
+ * *********************************************************************/
 package edu.csi.niu.z1818828.stocktick.ui.watchlist;
 
 import android.content.Intent;

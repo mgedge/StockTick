@@ -1,3 +1,16 @@
+/************************************************************************
+ * 	File Name: NewsFragment.java										*
+ * 																		*
+ *  Developer: Matthew Gedge											*
+ *   																	*
+ *    Purpose: This java class runs the News fragment. This page allows *
+ *    users to search for news about a topic. When the users enters     *
+ *    their search, NewsAPI will be called to retrieve everything on the*
+ *    topic. NewsAPI sometimes does not retrieve news relevant to the   *
+ *    search. Clicking a news article card, will bring the user to the  *
+ *    website where the article was found.                              *
+ *                                                                      *
+ * *********************************************************************/
 package edu.csi.niu.z1818828.stocktick.ui.news;
 
 import android.content.Context;
@@ -167,5 +180,6 @@ public class NewsFragment extends Fragment {
     private void dismissKeyboard(EditText editTextSearch) {
         InputMethodManager imm = (InputMethodManager) getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
         imm.hideSoftInputFromWindow(editTextSearch.getWindowToken(), 0);
+        editTextSearch.clearFocus();
     }
 }

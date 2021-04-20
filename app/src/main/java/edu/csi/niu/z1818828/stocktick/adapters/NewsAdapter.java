@@ -1,3 +1,15 @@
+/************************************************************************
+ * 	File Name: NewsAdapter.java    				    		    		*
+ * 																		*
+ *  Developer: Matthew Gedge											*
+ *   																	*
+ *    Purpose: This java class runs the adapter for the recycler views  *
+ *    on the StockActivity and news fragment. This class binds the views*
+ *    for each news article, utilizing the Glide library for seamless   *
+ *    loading. When an article is clicked, the user is taken to the link*
+ *    where the article can be found.                                   *
+ *																		*
+ * *********************************************************************/
 package edu.csi.niu.z1818828.stocktick.adapters;
 
 import android.content.Context;

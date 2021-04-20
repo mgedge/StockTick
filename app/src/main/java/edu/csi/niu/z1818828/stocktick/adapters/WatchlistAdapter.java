@@ -1,3 +1,14 @@
+/************************************************************************
+ * 	File Name: WatchlistAdapter.java				    				*
+ * 																		*
+ *  Developer: Matthew Gedge											*
+ *   																	*
+ *    Purpose: This java class runs the adapter for the recycler views  *
+ *    on the watchlist fragment. Here, implementation for the card      *
+ *    selection can be found, which is not in the StockAdapter file.    *
+ *    This adapter also shows the user when the stock was last updated. *
+ *																		*
+ * *********************************************************************/
 package edu.csi.niu.z1818828.stocktick.adapters;
 
 import android.content.Context;

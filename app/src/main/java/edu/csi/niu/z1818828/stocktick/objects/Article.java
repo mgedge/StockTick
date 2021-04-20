@@ -1,3 +1,12 @@
+/************************************************************************
+ * 	File Name: Article.java     					    				*
+ * 																		*
+ *  Developer: Matthew Gedge											*
+ *   																	*
+ *    Purpose: This java class creates the news objects required to     *
+ *    display news articles.
+ *																		*
+ * *********************************************************************/
 package edu.csi.niu.z1818828.stocktick.objects;
 
 public class Article {

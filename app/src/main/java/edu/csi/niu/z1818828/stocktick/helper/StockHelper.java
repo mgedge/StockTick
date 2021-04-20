@@ -1,3 +1,15 @@
+/************************************************************************
+ * 	File Name: StockHelper.java 					    				*
+ * 																		*
+ *  Developer: Matthew Gedge											*
+ *   																	*
+ *    Purpose: This unused java class was meant to retrieve the missing *
+ *    stock names that the AlphaVantage api did not provide.            *
+ *    I decided to leave this file in to demonstrate how a stock search *
+ *    could have been implemented. Unfortunately, this functionality    *
+ *    requires payment to access.                                       *
+ *																		*
+ * *********************************************************************/
 package edu.csi.niu.z1818828.stocktick.helper;
 
 import android.content.Context;
