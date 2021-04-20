@@ -8,6 +8,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -39,8 +40,15 @@ import edu.csi.niu.z1818828.stocktick.objects.Stock;
 import static android.content.Context.MODE_PRIVATE;
 
 public class MoversFragment extends Fragment {
+    private TextView textViewStatus;
+    private TextView textViewWinners;
+    private TextView textViewLosers;
+
     private RecyclerView recyclerViewWinners;
     private RecyclerView recyclerViewLosers;
+
+    private int errorCode = 0;
+    private boolean loaded = false;
 
     List<Stock> winners = new ArrayList<>();
     List<Stock> losers = new ArrayList<>();
@@ -62,6 +70,11 @@ public class MoversFragment extends Fragment {
 
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View root = inflater.inflate(R.layout.fragment_movers, container, false);
+
+        textViewWinners = root.findViewById(R.id.textViewWinners);
+        textViewLosers = root.findViewById(R.id.textViewLosers);
+        textViewStatus = root.findViewById(R.id.textViewStatus);
+        setStatusView();
 
         recyclerViewWinners = root.findViewById(R.id.recyclerViewWinners);
         recyclerViewLosers = root.findViewById(R.id.recyclerViewLosers);
@@ -88,13 +101,60 @@ public class MoversFragment extends Fragment {
         new Thread(new Runnable() {
             @Override
             public void run() {
-//                retrieveData();
                 retrieveDataWinner();
                 retrieveDataLoser();
+
+                loaded = true;
+
+                //Start a UI thread to update the UI
+                new Handler(Looper.getMainLooper()).post(new Runnable() {
+                    @Override
+                    public void run() {
+                        setStatusView();
+                    }
+                });
             }
         }).start();
 
         //saveData();
+    }
+
+    /**
+     * Set the retrieval status
+     */
+    private void setStatusView() {
+        if (errorCode == 0) {
+            if (loaded) {
+                textViewStatus.setVisibility(View.GONE);
+                textViewLosers.setVisibility(View.VISIBLE);
+                textViewWinners.setVisibility(View.VISIBLE);
+            } else {
+                textViewStatus.setVisibility(View.VISIBLE);
+                textViewLosers.setVisibility(View.GONE);
+                textViewWinners.setVisibility(View.GONE);
+            }
+        } else {
+            try {
+                textViewStatus.setTextColor(getContext().getResources().getColor(R.color.colorNegative));
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+
+            switch (errorCode) {
+                case 1: //Connection error
+                    textViewStatus.setVisibility(View.VISIBLE);
+                    textViewStatus.setText("Could not connect to the API");
+                    break;
+                case 2: //URL error
+                    textViewStatus.setVisibility(View.VISIBLE);
+                    textViewStatus.setText("URL error, something went wrong");
+                    break;
+                case 3: //JSON object error
+                    textViewStatus.setVisibility(View.VISIBLE);
+                    textViewStatus.setText("JSON error, the stock does not exist");
+                    break;
+            }
+        }
     }
 
     /**
@@ -168,6 +228,7 @@ public class MoversFragment extends Fragment {
         }
 
         //If reached, data failed to be retrieved
+        errorCode = 2;
     }
 
     /**
@@ -195,6 +256,8 @@ public class MoversFragment extends Fragment {
                 }
             }
         }
+
+        errorCode = 2;
     }
 
 
@@ -259,6 +322,7 @@ public class MoversFragment extends Fragment {
         } catch (Exception e) {
             //If anything fails, print
             e.printStackTrace();
+            errorCode = 1;
         }
     }
 
@@ -401,8 +465,6 @@ public class MoversFragment extends Fragment {
 
                                 //Log what was retrieved
                                 Log.i("JSONWinners", String.valueOf(jsonWinners));
-                            } else {
-                                Toast.makeText(getContext(), "Could not connect to the API", Toast.LENGTH_SHORT).show();
                             }
                         } catch (Exception e) {
                             e.printStackTrace();
@@ -469,8 +531,6 @@ public class MoversFragment extends Fragment {
 
                                 //Log what was retrieved
                                 Log.i("JSONLosers", String.valueOf(jsonLosers));
-                            } else {
-                                Toast.makeText(getContext(), "Could not connect to the API", Toast.LENGTH_SHORT).show();
                             }
                         } catch (Exception e) {
                             e.printStackTrace();

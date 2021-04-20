@@ -81,6 +81,10 @@ public class StockAdapter extends RecyclerView.Adapter<StockAdapter.ViewHolder> 
 
     @Override
     public int getItemCount() {
+        if (stocks.size() > 5) {
+            return 5;
+        }
+
         return stocks.size();
     }
 

@@ -138,15 +138,18 @@ public class WatchlistFragment extends Fragment {
     public void onResume() {
         super.onResume();
 
-        //Load the data and update adapter
+//        clearData();
+
+        //Load the data
         loadData();
-        watchlistAdapter.notifyDataSetChanged();
 
         //Deselect anything that was selected
         deselectAll();
 
         //Display if there was no stocks
         updateNoStocks();
+
+        watchlistAdapter.notifyDataSetChanged();
     }
 
     @Override

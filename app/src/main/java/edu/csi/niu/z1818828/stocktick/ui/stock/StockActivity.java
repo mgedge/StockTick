@@ -93,6 +93,7 @@ public class StockActivity extends AppCompatActivity {
     private TextView textViewVolumeValue;
     private TextView textViewHighValue;
     private TextView textViewLowValue;
+    private TextView textViewStatus;
     private RecyclerView recyclerViewNews;
     private LineChart lineChart;
     private BarChart barChart;
@@ -105,6 +106,7 @@ public class StockActivity extends AppCompatActivity {
     private String lastOpen;
     private String lastClose;
     private boolean loaded = false;
+    private int errorCode = 0; //If there was a connection error (1), if url error (2)
     private NewsAdapter newsAdapter;
     private List<Stock> watchlist;
 
@@ -135,9 +137,6 @@ public class StockActivity extends AppCompatActivity {
 
         stockHelper = new StockHelper(this);
 
-        //Load the watchlist
-        loadWatchlist();
-
         //Bind the views
         textViewStockPrice = findViewById(R.id.textViewStockPrice);
         textViewDayChange = findViewById(R.id.textViewDayChange);
@@ -147,6 +146,9 @@ public class StockActivity extends AppCompatActivity {
         textViewVolumeValue = findViewById(R.id.textViewVolumeValue);
         textViewHighValue = findViewById(R.id.textViewHighValue);
         textViewLowValue = findViewById(R.id.textViewLowValue);
+        textViewStatus = findViewById(R.id.textViewStatus);
+
+        setStatusView();
 
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
@@ -164,6 +166,9 @@ public class StockActivity extends AppCompatActivity {
         //Create listener for the add to watchlist button
         buttonWatchlist = findViewById(R.id.buttonAddToWatchlist);
         buttonWatchlist.setOnClickListener(toggleWatchlistButton);
+
+        //Load the watchlist
+        loadWatchlist();
 
         //Start a new thread to retrieve data
         new Thread(new Runnable() {
@@ -202,6 +207,8 @@ public class StockActivity extends AppCompatActivity {
                             }
                         }
                     }
+
+                    calculateChange();
 
                     //Get the news
                     retrieveNews();
@@ -247,12 +254,24 @@ public class StockActivity extends AppCompatActivity {
                         setTitle(stock.getSymbol());
                         getSupportActionBar().setSubtitle(stock.getStockName());
 
+                        //Wait half a second if either arrays are null
+                        for (int i = 0; i < 50; i++) {
+                            if (priceArray.size() == 0 || volumeArray.size() == 0) {
+                                try {
+                                    Thread.sleep(100);
+                                } catch (InterruptedException e) {
+                                    e.printStackTrace();
+                                }
+                            }
+                        }
+
                         //Setup the charts
                         setChartPrice();
                         setChartVolume();
 
                         //Data has been loaded
                         setLoaded(true);
+                        setStatusView();
                     }
                 });
             }
@@ -271,16 +290,50 @@ public class StockActivity extends AppCompatActivity {
     }
 
     /**
+     * Set the retrieval status
+     */
+    private void setStatusView() {
+        if (errorCode == 0) {
+            if (loaded) {
+                textViewStatus.setVisibility(View.GONE);
+            } else {
+                textViewStatus.setVisibility(View.VISIBLE);
+            }
+        } else {
+            textViewStatus.setTextColor(getResources().getColor(R.color.colorNegative));
+
+            switch (errorCode) {
+                case 1: //Connection error
+                    textViewStatus.setVisibility(View.VISIBLE);
+                    textViewStatus.setText("Could not connect to the API");
+                    break;
+                case 2: //URL error
+                    textViewStatus.setVisibility(View.VISIBLE);
+                    textViewStatus.setText("URL error, the stock may not exist");
+                    break;
+                case 3: //JSON object error
+                    textViewStatus.setVisibility(View.VISIBLE);
+                    textViewStatus.setText("JSON error, the stock does not exist");
+                    break;
+            }
+        }
+    }
+
+    /**
      * Set the watchlisticon based on stock's status in the watchlst
      */
     private void setWatchlistIcon() {
-        //If user has stock, update view
-        if (hasStock()) {
-            buttonWatchlist.setImageDrawable(getResources().getDrawable(R.drawable.ic_baseline_delete_24));
-            buttonWatchlist.setBackgroundColor(getResources().getColor(colorNegative));
-        } else {
-            buttonWatchlist.setImageDrawable(getResources().getDrawable(R.drawable.ic_baseline_add_24));
-            buttonWatchlist.setBackgroundColor(getResources().getColor(colorAccent));
+        try {
+            //If user has stock, update view
+            if (hasStock()) {
+                buttonWatchlist.setImageDrawable(getResources().getDrawable(R.drawable.ic_baseline_delete_24));
+                buttonWatchlist.setBackgroundColor(getResources().getColor(colorNegative));
+            } else {
+                buttonWatchlist.setImageDrawable(getResources().getDrawable(R.drawable.ic_baseline_add_24));
+                buttonWatchlist.setBackgroundColor(getResources().getColor(colorAccent));
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
 
@@ -295,10 +348,14 @@ public class StockActivity extends AppCompatActivity {
         retrieveStockData();
 
         //Wait for it to be retrieved
-        Thread.sleep(1500);
-
-        //Parse it
-        parseJSONStockDataObject();
+        for (int i = 0; i < 15; i++) {
+            if (jsonStockData == null) {
+                Thread.sleep(100);
+            } else {
+                //Parse it
+                parseJSONStockDataObject();
+            }
+        }
 
         //Calculate the change
         calculateChange();
@@ -309,17 +366,19 @@ public class StockActivity extends AppCompatActivity {
      */
     private void loadStockData() {
         //Make sure there's something in the watchlist
-        if (watchlist.size() > 0) {
-            String temp = stock.getSymbol();
+        if (watchlist != null) {
+            if (watchlist.size() > 0) {
+                String temp = stock.getSymbol();
 
-            //Iterate through the watchlist
-            for (int i = 0; i < watchlist.size(); i++) {
-                String key = watchlist.get(i).getSymbol();
+                //Iterate through the watchlist
+                for (int i = 0; i < watchlist.size(); i++) {
+                    String key = watchlist.get(i).getSymbol();
 
-                //If the stock is equal to the stock in the watchlist,
-                // set the stock to the watchlist stock
-                if (key.compareTo(temp) == 0) {
-                    stock = watchlist.get(i);
+                    //If the stock is equal to the stock in the watchlist,
+                    // set the stock to the watchlist stock
+                    if (key.compareTo(temp) == 0) {
+                        stock = watchlist.get(i);
+                    }
                 }
             }
         }
@@ -347,6 +406,13 @@ public class StockActivity extends AppCompatActivity {
     public void finish() {
         super.finish();
         overridePendingTransition(R.anim.slide_in_left, R.anim.slide_out_right);
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        deleteWatchlist();
+        saveWatchlist();
     }
 
     /**
@@ -390,6 +456,9 @@ public class StockActivity extends AppCompatActivity {
      */
     private void saveToWatchlist() {
         //Determine if the user has the stock already, if not add
+        if (watchlist == null)
+            watchlist = new ArrayList<>();
+
         if (!hasStock()) {
             watchlist.add(stock);
         }
@@ -408,16 +477,18 @@ public class StockActivity extends AppCompatActivity {
      */
     private boolean hasStock() {
         //Ensure there is something in the watchlist
-        if (watchlist.size() > 0) {
-            String temp = stock.getSymbol();
+        if (watchlist != null) {
+            if (watchlist.size() > 0) {
+                String temp = stock.getSymbol();
 
-            //Iterate through the watchlist
-            for (int i = 0; i < watchlist.size(); i++) {
-                String key = watchlist.get(i).getSymbol();
+                //Iterate through the watchlist
+                for (int i = 0; i < watchlist.size(); i++) {
+                    String key = watchlist.get(i).getSymbol();
 
-                //If the stock exists, return true
-                if (key.compareTo(temp) == 0) {
-                    return true;
+                    //If the stock exists, return true
+                    if (key.compareTo(temp) == 0) {
+                        return true;
+                    }
                 }
             }
         }
@@ -429,15 +500,17 @@ public class StockActivity extends AppCompatActivity {
      * Save the watchlist
      */
     private void saveWatchlist() {
-        SharedPreferences sharedPreferences = getSharedPreferences("SharedPref", MODE_PRIVATE);
-        SharedPreferences.Editor editor = sharedPreferences.edit();
+        if (watchlist != null) {
+            SharedPreferences sharedPreferences = getSharedPreferences("SharedPref", MODE_PRIVATE);
+            SharedPreferences.Editor editor = sharedPreferences.edit();
 
-        Gson gson = new Gson();
+            Gson gson = new Gson();
 
-        String json = gson.toJson(watchlist);
-        editor.putString("watchlist", json);
+            String json = gson.toJson(watchlist);
+            editor.putString("watchlist", json);
 
-        editor.apply();
+            editor.apply();
+        }
     }
 
     /**
@@ -458,6 +531,17 @@ public class StockActivity extends AppCompatActivity {
         if (watchlist == null) {
             watchlist = new ArrayList<>();
         }
+    }
+
+    /**
+     * Delete the watchlist
+     */
+    private void deleteWatchlist() {
+        SharedPreferences sharedPreferences = getSharedPreferences("SharedPref", MODE_PRIVATE);
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+
+        editor.remove("watchlist");
+        editor.apply();
     }
 
     /**
@@ -502,8 +586,7 @@ public class StockActivity extends AppCompatActivity {
                         stock.setDayLow(Double.parseDouble(low));
                         stock.setPrice(Double.parseDouble(price));
                         stock.setVolume(Double.parseDouble(volume));
-//                        stock.setStockName();
-                        stockHelper.setStockName(stock);
+                        //stockHelper.setStockName(stock);
                     }
                     //Set the data for the previous day data
                     else if (counter == 1) {
@@ -518,6 +601,7 @@ public class StockActivity extends AppCompatActivity {
             }
         } catch (Exception e) {
             e.printStackTrace();
+            errorCode = 3;
         }
     }
 
@@ -599,6 +683,7 @@ public class StockActivity extends AppCompatActivity {
                                 Log.i("JSONStockData", String.valueOf(jsonStockData));
                             } else {
                                 Toast.makeText(getApplicationContext(), "Could not connect to the API", Toast.LENGTH_SHORT).show();
+                                errorCode = 1;
                             }
                         } catch (Exception e) {
                             e.printStackTrace();
@@ -867,7 +952,7 @@ public class StockActivity extends AppCompatActivity {
                 i = count;
 
             //Loop through the data up to determined count
-            for (int k = 0; i >= 1; i--, k++) {
+            for (int k = 0; i > 1; i--, k++) {
                 //set value
                 try {
                     //set the value to the value in array
@@ -955,16 +1040,31 @@ public class StockActivity extends AppCompatActivity {
     private void setDataVolume(int count, float range) {
         ArrayList<BarEntry> values = new ArrayList<>();
 
-        //Up to the count (reverse loop)
-        for (int i = count - 1, k = 0; i >= 1; i--, k++) {
-            //set value
-            try {
-                float val = (float) volumeArray.get(i);
-                values.add(new BarEntry(k, val));
-            } catch (ArrayIndexOutOfBoundsException e) {
-                e.printStackTrace();
+        //Set i to count or less than 90
+        if (count != 0) {
+            int i;
+
+            if (count > 90)
+                i = 90;
+            else
+                i = count;
+
+            i--;
+
+            //Up to the count (reverse loop)
+            for (int k = 0; i >= 1; i--, k++) {
+                //set value
+                try {
+                    float val = (float) volumeArray.get(i);
+                    values.add(new BarEntry(k, val));
+                } catch (ArrayIndexOutOfBoundsException e) {
+                    e.printStackTrace();
+                }
             }
+        } else {
+            Toast.makeText(this, "NO DATA TO ADD!", Toast.LENGTH_SHORT).show();
         }
+
 
         //Create the chart dataset
         BarDataSet set;
